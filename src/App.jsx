@@ -1,8 +1,15 @@
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import Splash from "./pages/Splash/Splash";
 
 function App() {
-
-  return <div></div>
-  
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Splash />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-export default App
+
+export default App;
