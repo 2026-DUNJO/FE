@@ -2,20 +2,14 @@
 
 :root {
   --color-main: #E56458;
-
   --color-black: #262626;
   --color-white: #FFFFFF;
-
   --color-gray: #7D7D7D;
   --color-light-gray: #BEBEBE;
   --color-light-light-gray: #E5E5E5;
-
   --color-light-main: #FAE0DE;
 
-  font-family: "Wanted Sans Variable", "Wanted Sans", sans-serif;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  font-family: "Wanted Sans Variable", sans-serif;
 }
 
 * {
@@ -23,21 +17,26 @@
 }
 
 html,
-body,
-#root {
-  margin: 0;
-
-  width: 100%;
-  min-height: 100%;
-}
-
 body {
   margin: 0;
 
-  font-family: "Wanted Sans Variable", "Wanted Sans", sans-serif;
+  width: 100%;
+  min-height: 100vh;
 
   background: var(--color-white);
-  color: var(--color-black);
+}
+
+body {
+  font-family: "Wanted Sans Variable", sans-serif;
+}
+
+#root {
+  width: 100%;
+  min-height: 844px;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 button,
@@ -45,15 +44,4 @@ input,
 textarea,
 select {
   font: inherit;
-}
-
-button {
-  border: none;
-  padding: 0;
-  background: none;
-  cursor: pointer;
-}
-
-img {
-  display: block;
 }
