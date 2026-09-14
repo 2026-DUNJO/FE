@@ -21,7 +21,6 @@ const Splash = () => {
     }, 2000);
 
     const navigateTimer = setTimeout(() => {
-      navigate("/home");
     }, 4000);
 
     return () => {

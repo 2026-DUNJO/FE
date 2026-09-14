@@ -14,7 +14,7 @@ const eraseWord = keyframes`
 
 const moveSymbol = keyframes`
   0% {
-    left: 270px;
+    left: 255px;
     transform: translateY(-50%);
   }
 
@@ -72,7 +72,7 @@ export const Symbol = styled.img`
   position: absolute;
 
   top: 50%;
-  left: 270px;
+  left: 255px;
 
   width: 45px;
 
