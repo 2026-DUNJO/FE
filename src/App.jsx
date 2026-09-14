@@ -1,14 +1,16 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import Splash from "./pages/Splash";
 
-import Splash from "./pages/Splash/Splash";
+function Home() {
+  return <div>Home</div>;
+}
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Splash />} />
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/" element={<Splash />} />
+      <Route path="/home" element={<Home />} />
+    </Routes>
   );
 }
 

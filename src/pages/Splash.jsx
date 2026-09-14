@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import wordmark from "../../assets/logo/dunjo-wordmark.svg";
-import symbol from "../../assets/logo/dunjo-symbol.svg";
+import wordmark from "../assets/dunjo-wordmark.svg";
+import symbol from "../assets/dunjo-symbol.svg";
 
 import {
   SplashContainer,
   LogoArea,
   Wordmark,
   Symbol,
-} from "./Splash.styles";
+} from "../styles/Splash.styles";
 
 const Splash = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const Splash = () => {
 
     const navigateTimer = setTimeout(() => {
       navigate("/home");
-    }, 2400);
+    }, 4000);
 
     return () => {
       clearTimeout(fadeTimer);

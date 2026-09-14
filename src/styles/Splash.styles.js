@@ -6,10 +6,6 @@ const eraseWord = keyframes`
     opacity: 1;
   }
 
-  90% {
-    opacity: 1;
-  }
-
   100% {
     clip-path: inset(0 0 0 100%);
     opacity: 0;
@@ -44,11 +40,8 @@ export const SplashContainer = styled.main`
   overflow: hidden;
 
   opacity: ${({ $isEnding }) => ($isEnding ? 0 : 1)};
-  visibility: ${({ $isEnding }) => ($isEnding ? "hidden" : "visible")};
 
-  transition:
-    opacity 0.4s ease,
-    visibility 0.4s ease;
+  transition: opacity 0.4s ease;
 `;
 
 export const LogoArea = styled.div`
@@ -65,7 +58,6 @@ export const Wordmark = styled.img`
   left: 0;
 
   width: 260px;
-  height: auto;
 
   transform: translateY(-50%);
 
@@ -83,7 +75,6 @@ export const Symbol = styled.img`
   left: 270px;
 
   width: 45px;
-  height: auto;
 
   transform: translateY(-50%);
 
