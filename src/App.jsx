@@ -1,15 +1,9 @@
-import {
-  Routes,
-  Route,
-} from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 import Splash from "./pages/Splash";
 import Select from "./pages/Select";
 import Signup from "./pages/Signup";
-
-function Login() {
-  return <div>Login</div>;
-}
+import Login from "./pages/Login";
 
 function Home() {
   return <div>Home</div>;
