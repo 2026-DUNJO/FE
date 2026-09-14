@@ -36,7 +36,7 @@ export const SplashContainer = styled.main`
   justify-content: center;
   align-items: center;
 
-  background: #262626;
+  background: var(--color-black);
   overflow: hidden;
 
   opacity: ${({ $isEnding }) => ($isEnding ? 0 : 1)};
