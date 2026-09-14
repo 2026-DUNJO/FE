@@ -21,6 +21,7 @@ const Splash = () => {
     }, 2000);
 
     const navigateTimer = setTimeout(() => {
+        navigate("/select");
     }, 4000);
 
     return () => {
