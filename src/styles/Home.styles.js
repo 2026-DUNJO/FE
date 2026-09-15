@@ -17,7 +17,7 @@ export const HomeContainer = styled.main`
 `;
 
 /* ========================================
-   BEFORE SPOTIFY
+   BEFORE HOME
 ======================================== */
 
 export const BeforeContainer = styled.div`
@@ -79,6 +79,7 @@ export const IntroTitle = styled.h1`
   font-size: 48px;
   font-weight: 700;
   line-height: 1.12;
+
   letter-spacing: -2px;
 
   strong {
@@ -105,6 +106,13 @@ export const FeatureList = styled.div`
   flex-direction: column;
 
   gap: 36px;
+`;
+
+export const FeatureItem = styled.div`
+  display: flex;
+  align-items: center;
+
+  gap: 24px;
 `;
 
 export const FeatureIcon = styled.img`
@@ -182,7 +190,31 @@ export const SpotifyIcon = styled.img`
 `;
 
 /* ========================================
-   AFTER SPOTIFY
+   BEFORE HOME - RADIUS
+======================================== */
+
+export const ThrowTextWrapper = styled.span`
+  position: relative;
+
+  display: inline-block;
+`;
+
+export const BeforeRadius = styled.img`
+  position: absolute;
+
+  z-index: 1;
+
+  width: 72px;
+  height: 72px;
+
+  right: -29px;
+  bottom: -22px;
+
+  pointer-events: none;
+`;
+
+/* ========================================
+   AFTER HOME
 ======================================== */
 
 export const AfterContainer = styled.div`
@@ -192,14 +224,22 @@ export const AfterContainer = styled.div`
   height: 100%;
 
   background: var(--color-white);
+
+  overflow: hidden;
 `;
 
 export const AfterContent = styled.div`
+  width: 100%;
   height: 100%;
 
-   padding: 0 28px 100px;
+  padding: 0 28px 110px;
+
+  box-sizing: border-box;
 
   overflow-y: auto;
+  overflow-x: hidden;
+
+  overscroll-behavior: contain;
 
   scrollbar-width: none;
 
@@ -213,20 +253,23 @@ export const AfterContent = styled.div`
 ======================================== */
 
 export const NowPlayingCard = styled.section`
-  margin-top: 28px;
+  width: 100%;
 
   min-height: 116px;
 
-  padding: 20px;
+  margin-top: 28px;
+  padding: 24px;
 
-  border-radius: 14px;
-
-  background: #f4f4f4;
+  box-sizing: border-box;
 
   display: flex;
   align-items: center;
 
   gap: 22px;
+
+  background: #f4f4f4;
+
+  border-radius: 14px;
 `;
 
 export const AlbumCover = styled.div`
@@ -242,6 +285,8 @@ export const AlbumCover = styled.div`
   overflow: hidden;
 
   img {
+    display: block;
+
     width: 100%;
     height: 100%;
 
@@ -257,19 +302,21 @@ export const TrackContent = styled.div`
 `;
 
 export const NowPlayingLabel = styled.span`
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 
   color: var(--color-main);
 
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 500;
+  line-height: 160%;
 `;
 
 export const TrackTitle = styled.strong`
   color: var(--color-black);
 
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 160%;
 
   white-space: nowrap;
   overflow: hidden;
@@ -277,12 +324,13 @@ export const TrackTitle = styled.strong`
 `;
 
 export const TrackArtist = styled.span`
-  margin-top: 8px;
+  margin-top: 3px;
 
   color: var(--color-gray);
 
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
+  line-height: 160%;
 `;
 
 /* ========================================
@@ -290,19 +338,27 @@ export const TrackArtist = styled.span`
 ======================================== */
 
 export const MatchingCard = styled.section`
+  position: relative;
+
+  width: 100%;
+
   margin-top: 22px;
 
-  padding: 24px 20px 28px;
+  padding: 16px 20px;
+
+  box-sizing: border-box;
+
+  background: var(--color-white);
 
   border: 1px solid var(--color-light-light-gray);
   border-radius: 14px;
-
-  background: var(--color-white);
 
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 `;
 
 export const MatchingHeader = styled.div`
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -324,82 +380,56 @@ export const StatusDot = styled.span`
   width: 7px;
   height: 7px;
 
+  flex-shrink: 0;
+
   border-radius: 50%;
 
   background: var(--color-main);
 `;
 
-export const Arrow = styled.span`
+export const MatchingArrow = styled.span`
   color: var(--color-gray);
 
-  font-size: 30px;
+  font-size: 28px;
+  font-weight: 400;
   line-height: 1;
+
+  cursor: pointer;
 `;
 
 /* ========================================
-   RADAR
+   AFTER HOME - RADIUS
 ======================================== */
 
-export const RadarArea = styled.div`
-  margin-top: 26px;
+export const AfterRadius = styled.img`
+  position: static;
 
-  display: flex;
-  justify-content: center;
+  display: block;
+
+  width: 180px;
+  height: 180px;
+
+  margin: 20px auto;
+
+  flex-shrink: 0;
+
+  object-fit: contain;
+
+  pointer-events: none;
 `;
 
-export const RadarOuter = styled.div`
-  width: 190px;
-  height: 190px;
-
-  border: 1px solid var(--color-light-main);
-  border-radius: 50%;
-
-  background: rgba(250, 224, 222, 0.3);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const RadarMiddle = styled.div`
-  width: 128px;
-  height: 128px;
-
-  border: 1px solid var(--color-light-main);
-  border-radius: 50%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const RadarInner = styled.div`
-  width: 66px;
-  height: 66px;
-
-  border: 1px solid var(--color-light-main);
-  border-radius: 50%;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-export const RadarDot = styled.div`
-  width: 22px;
-  height: 22px;
-
-  border-radius: 50%;
-
-  background: var(--color-main);
-`;
+/* ========================================
+   RADIUS TEXT
+======================================== */
 
 export const RadiusText = styled.p`
-  margin: 24px 0 0;
+  margin: 0;
 
   color: var(--color-gray);
 
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 160%;
 
   text-align: center;
 
@@ -412,11 +442,11 @@ export const RadiusText = styled.p`
 `;
 
 export const MatchingDescription = styled.p`
-  margin: 8px 0 0;
+  margin: 0;
 
   color: var(--color-gray);
-
   font-size: 12px;
+  font-weight: 400;
   line-height: 1.5;
 
   text-align: center;
@@ -427,6 +457,8 @@ export const MatchingDescription = styled.p`
 ======================================== */
 
 export const MatchingStats = styled.div`
+  width: 100%;
+
   margin-top: 28px;
 
   display: flex;
@@ -440,14 +472,17 @@ export const StatItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  min-width: 0;
 `;
 
-export const StatIcon = styled.div`
-  height: 30px;
+export const StatIcon = styled.img`
+  width: auto;
+  height: 24px;
 
-  color: var(--color-black);
+  flex-shrink: 0;
 
-  font-size: 26px;
+  object-fit: contain;
 `;
 
 export const StatLabel = styled.span`
@@ -456,52 +491,26 @@ export const StatLabel = styled.span`
   color: var(--color-gray);
 
   font-size: 12px;
+  font-weight: 400;
+
+  text-align: center;
 `;
 
 export const StatValue = styled.strong`
-  margin-top: 8px;
+  margin-top: 4px;
 
   color: var(--color-black);
 
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 600;
+
+  text-align: center;
 `;
 
 export const StatDivider = styled.div`
   width: 1px;
 
+  margin: 0 16px;
+
   background: var(--color-light-light-gray);
-`;
-
-export const MatchingArrow = styled.span`
-  color: var(--color-gray);
-  font-size: 28px;
-  font-weight: 400;
-  line-height: 1;
-
-  cursor: pointer;
-`;
-
-export const FeatureItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 24px;
-`;
-
-export const ThrowTextWrapper = styled.span`
-  position: relative;
-  display: inline-block;
-`;
-
-export const BeforeRadius = styled.img`
-  position: absolute;
-  z-index: 1;
-
-  width: 72px;
-  height: 72px;
-
-  right: -29px;
-  bottom: -22px;
-
-  pointer-events: none;
 `;

@@ -1,5 +1,6 @@
 import listenerIcon from "../../assets/home/listener.svg";
 import similarityIcon from "../../assets/home/similarity.svg";
+import afterRadius from "../../assets/home/after_radius.svg";
 
 import NavBar from "../NavBar";
 import Header from "../Header";
@@ -7,6 +8,7 @@ import Header from "../Header";
 import {
   AfterContainer,
   AfterContent,
+  AfterRadius,
 
   NowPlayingCard,
   AlbumCover,
@@ -21,12 +23,6 @@ import {
   StatusDot,
   MatchingArrow,
 
-  RadarArea,
-  RadarOuter,
-  RadarMiddle,
-  RadarInner,
-  RadarDot,
-
   RadiusText,
   MatchingDescription,
 
@@ -39,14 +35,14 @@ import {
 } from "../../styles/Home.styles";
 
 const AfterHome = () => {
-  // TODO: 나중에 백엔드 + Spotify 데이터로 변경
+  // TODO: Spotify API 연결 후 실제 데이터로 변경
   const currentTrack = {
     title: "like JENNIE",
     artist: "제니 (JENNIE)",
     albumImage: "",
   };
 
-  // TODO: 나중에 백엔드 데이터로 변경
+  // TODO: 백엔드 연결 후 실제 데이터로 변경
   const matchingData = {
     radius: 1,
     listenerCount: 12,
@@ -56,8 +52,10 @@ const AfterHome = () => {
   return (
     <AfterContainer>
       <AfterContent>
-        <Header/>
-        {/* CURRENT TRACK */}
+        {/* HEADER */}
+        <Header />
+
+        {/* 현재 재생곡 */}
         <NowPlayingCard>
           <AlbumCover>
             {currentTrack.albumImage && (
@@ -83,14 +81,11 @@ const AfterHome = () => {
           </TrackContent>
         </NowPlayingCard>
 
-
-        {/* MATCHING */}
+        {/* MATCHING CARD */}
         <MatchingCard>
-
           <MatchingHeader>
             <MatchingStatus>
               <StatusDot />
-
               MATCHING ON
             </MatchingStatus>
 
@@ -99,36 +94,24 @@ const AfterHome = () => {
             </MatchingArrow>
           </MatchingHeader>
 
+          {/* 레이더 */}
+          <AfterRadius
+            src={afterRadius}
+            alt=""
+          />
 
-          {/* RADAR */}
-          <RadarArea>
-            <RadarOuter>
-              <RadarMiddle>
-                <RadarInner>
-                  <RadarDot />
-                </RadarInner>
-              </RadarMiddle>
-            </RadarOuter>
-          </RadarArea>
-
-
+          {/* 반경 */}
           <RadiusText>
-            <strong>
-              {matchingData.radius}km
-            </strong>
-
+            <strong>{matchingData.radius}km</strong>
             {" "}안에서
           </RadiusText>
-
 
           <MatchingDescription>
             음악적으로 연결되는 사람을 찾고 있습니다.
           </MatchingDescription>
 
-
-          {/* MATCHING INFO */}
+          {/* 매칭 정보 */}
           <MatchingStats>
-
             <StatItem>
               <StatIcon
                 src={listenerIcon}
@@ -144,9 +127,7 @@ const AfterHome = () => {
               </StatValue>
             </StatItem>
 
-
             <StatDivider />
-
 
             <StatItem>
               <StatIcon
@@ -162,11 +143,8 @@ const AfterHome = () => {
                 {matchingData.similarity}% 이상
               </StatValue>
             </StatItem>
-
           </MatchingStats>
-
         </MatchingCard>
-
       </AfterContent>
 
       <NavBar />
