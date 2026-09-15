@@ -8,6 +8,8 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import MatchSuccess from "./pages/MatchSuccess";
 import MyPage from "./pages/MyPage";
+import Chat from "./pages/Chat";
+import ChatRoom from "./pages/ChatRoom";
 
 function App() {
   return (
@@ -45,6 +47,16 @@ function App() {
       <Route
         path="/my"
         element={<MyPage />}
+      />
+
+      <Route
+        path="/chat"
+        element={<Chat />}
+      />
+
+      <Route
+        path="/chat/:chatRoomId"
+        element={<ChatRoom />}
       />
 
       <Route
