@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 /* ========================================
-   PAGE
+   CHAT
 ======================================== */
 
 export const ChatContainer = styled.main`
@@ -52,11 +52,19 @@ export const ChatTabs = styled.div`
   border-bottom: 1px solid var(--color-light-light-gray);
 `;
 
-export const TabButton = styled.button`
+export const ChatTab = styled.button`
+  position: relative;
+
   width: 50%;
   height: 46px;
 
   padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
 
   border: none;
 
@@ -75,13 +83,6 @@ export const TabButton = styled.button`
   cursor: pointer;
 
   transition: color 0.2s ease;
-`;
-
-export const RequestTabContent = styled.span`
-  display: inline-flex;
-  align-items: center;
-
-  gap: 8px;
 `;
 
 export const RequestBadge = styled.span`
@@ -134,7 +135,7 @@ export const TabIndicator = styled.div`
 `;
 
 /* ========================================
-   LIST
+   CHAT LIST
 ======================================== */
 
 export const ChatList = styled.div`
@@ -149,10 +150,10 @@ export const ChatList = styled.div`
 `;
 
 /* ========================================
-   CARD
+   CHAT CARD
 ======================================== */
 
-export const FriendCard = styled.button`
+export const ChatCard = styled.button`
   width: 100%;
   min-height: 86px;
 
@@ -175,20 +176,18 @@ export const FriendCard = styled.button`
 
   cursor: pointer;
 
-  transition:
-    border-color 0.15s ease,
-    transform 0.15s ease;
-
-  &:hover {
-    border-color: var(--color-light-gray);
-  }
+  transition: transform 0.15s ease;
 
   &:active {
     transform: scale(0.99);
   }
 `;
 
-export const FriendProfile = styled.div`
+/* ========================================
+   PROFILE
+======================================== */
+
+export const ProfileImage = styled.div`
   width: 58px;
   height: 58px;
 
@@ -203,35 +202,49 @@ export const FriendProfile = styled.div`
   background: var(--color-black);
 `;
 
-export const FriendSymbol = styled.img`
-  width: 28px;
+export const ProfileSymbol = styled.img`
+  display: block;
+
+  width: 30px;
   height: auto;
 
   object-fit: contain;
 `;
 
-export const FriendContent = styled.div`
+/* ========================================
+   CHAT INFO
+======================================== */
+
+export const ChatInfo = styled.div`
   min-width: 0;
 
   flex: 1;
+
+  display: flex;
+  flex-direction: column;
 `;
 
-export const FriendNameRow = styled.div`
+export const ChatNameRow = styled.div`
   display: flex;
   align-items: center;
 
   gap: 7px;
 `;
 
-export const FriendName = styled.strong`
+export const ChatNickname = styled.strong`
+  min-width: 0;
+
   color: var(--color-black);
 
   font-size: 17px;
   font-weight: 600;
   line-height: 1.4;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
-/* 안 읽은 친구 / 새 요청 공통 표시 */
 export const UnreadDot = styled.span`
   width: 7px;
   height: 7px;
@@ -244,23 +257,24 @@ export const UnreadDot = styled.span`
 `;
 
 export const LastSong = styled.p`
+  width: 100%;
+
   margin: 5px 0 0;
 
   color: var(--color-gray);
 
   font-size: 12px;
   font-weight: 400;
+  line-height: 1.5;
 
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  span {
-    margin-right: 10px;
-  }
 `;
 
-export const Arrow = styled.span`
+export const ChatArrow = styled.span`
+  margin-left: auto;
+
   flex-shrink: 0;
 
   color: var(--color-gray);
@@ -269,6 +283,10 @@ export const Arrow = styled.span`
   font-weight: 400;
   line-height: 1;
 `;
+
+/* ========================================
+   EMPTY
+======================================== */
 
 export const EmptyMessage = styled.p`
   margin: 80px 0 0;

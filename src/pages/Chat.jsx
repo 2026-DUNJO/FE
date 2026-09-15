@@ -6,27 +6,25 @@ import NavBar from "../components/NavBar";
 
 import dunjoSymbol from "../assets/dunjo-symbol.svg";
 
+import { chatData } from "../data/chatData";
+
 import {
   ChatContainer,
   ChatContent,
-
   ChatTabs,
-  TabButton,
-  RequestTabContent,
+  ChatTab,
   RequestBadge,
   TabIndicator,
-
   ChatList,
-  FriendCard,
-  FriendProfile,
-  FriendSymbol,
-  FriendContent,
-  FriendNameRow,
-  FriendName,
+  ChatCard,
+  ProfileImage,
+  ProfileSymbol,
+  ChatInfo,
+  ChatNameRow,
+  ChatNickname,
   UnreadDot,
   LastSong,
-  Arrow,
-
+  ChatArrow,
   EmptyMessage,
 } from "../styles/Chat.styles";
 
@@ -35,46 +33,29 @@ const Chat = () => {
 
   const [activeTab, setActiveTab] = useState("friends");
 
-  // TODO: 백엔드 연결 후 실제 친구 데이터로 변경
-  const friends = [
-    {
-      id: 1,
-      chatRoomId: 101,
-      nickname: "친구 1",
-      lastSong: "ITZY - THAT’S NO NO",
-      unread: true,
-    },
-    {
-      id: 2,
-      chatRoomId: 102,
-      nickname: "친구 2",
-      lastSong: "BLACKPINK - JUMP",
-      unread: false,
-    },
-  ];
+  /* ==============================
+     친구 / 요청 분리
+  ============================== */
 
-  // TODO: 백엔드 연결 후 실제 요청 데이터로 변경
-  const requests = [
-    {
-      id: 3,
-      nickname: "친구 3",
-      song: "제니 (JENNIE) - Mantra",
-      similarity: 73,
-      unread: true,
-    },
-  ];
+  const friends = chatData.filter(
+    (chat) => chat.type === "friend"
+  );
 
-  /* 친구 클릭 */
-  const handleFriendClick = (chatRoomId) => {
-    // TODO: 실제 채팅방 페이지 만든 후 사용
-    console.log("채팅방:", chatRoomId);
+  const requests = chatData.filter(
+    (chat) => chat.type === "request"
+  );
 
-    // navigate(`/chat/${chatRoomId}`);
-  };
+  const currentList =
+    activeTab === "friends"
+      ? friends
+      : requests;
 
-  /* 요청 클릭 */
-  const handleRequestClick = (requestId) => {
-    navigate(`/chat/request/${requestId}`);
+  /* ==============================
+     채팅방 이동
+  ============================== */
+
+  const handleChatClick = (chatRoomId) => {
+    navigate(`/chat/${chatRoomId}`);
   };
 
   return (
@@ -82,131 +63,92 @@ const Chat = () => {
       <ChatContent>
         <Header />
 
-        {/* TAB */}
+        {/* ==============================
+            TAB
+        ============================== */}
+
         <ChatTabs>
-          <TabButton
+          <ChatTab
             type="button"
             $active={activeTab === "friends"}
             onClick={() => setActiveTab("friends")}
           >
             친구
-          </TabButton>
+          </ChatTab>
 
-          <TabButton
+          <ChatTab
             type="button"
             $active={activeTab === "requests"}
             onClick={() => setActiveTab("requests")}
           >
-            <RequestTabContent>
-              요청
+            요청
 
-              {requests.length > 0 && (
-                <RequestBadge>
-                  {requests.length}
-                </RequestBadge>
-              )}
-            </RequestTabContent>
-          </TabButton>
+            {requests.length > 0 && (
+              <RequestBadge>
+                {requests.length}
+              </RequestBadge>
+            )}
+          </ChatTab>
 
           <TabIndicator $activeTab={activeTab} />
         </ChatTabs>
 
-        {/* =========================
-            친구
-        ========================= */}
-        {activeTab === "friends" && (
+        {/* ==============================
+            CHAT LIST
+        ============================== */}
+
+        {currentList.length > 0 ? (
           <ChatList>
-            {friends.length > 0 ? (
-              friends.map((friend) => (
-                <FriendCard
-                  key={friend.id}
-                  type="button"
-                  onClick={() =>
-                    handleFriendClick(friend.chatRoomId)
-                  }
-                >
-                  <FriendProfile>
-                    <FriendSymbol
-                      src={dunjoSymbol}
-                      alt=""
-                    />
-                  </FriendProfile>
+            {currentList.map((chat) => (
+              <ChatCard
+                key={chat.chatRoomId}
+                type="button"
+                $request={chat.type === "request"}
+                onClick={() =>
+                  handleChatClick(chat.chatRoomId)
+                }
+              >
+                {/* PROFILE */}
 
-                  <FriendContent>
-                    <FriendNameRow>
-                      <FriendName>
-                        {friend.nickname}
-                      </FriendName>
+                <ProfileImage>
+                  <ProfileSymbol
+                    src={dunjoSymbol}
+                    alt=""
+                  />
+                </ProfileImage>
 
-                      {friend.unread && (
-                        <UnreadDot />
-                      )}
-                    </FriendNameRow>
+                {/* INFO */}
 
-                    <LastSong>
-                      <span>마지막 곡</span>
-                      {friend.lastSong}
-                    </LastSong>
-                  </FriendContent>
+                <ChatInfo>
+                  <ChatNameRow>
+                    <ChatNickname>
+                      {chat.nickname}
+                    </ChatNickname>
 
-                  <Arrow>›</Arrow>
-                </FriendCard>
-              ))
-            ) : (
-              <EmptyMessage>
-                아직 연결된 친구가 없습니다.
-              </EmptyMessage>
-            )}
+                    {chat.unread && (
+                      <UnreadDot />
+                    )}
+                  </ChatNameRow>
+
+                  <LastSong>
+                    {chat.type === "request"
+                      ? `던진 곡　${chat.lastSong}`
+                      : `마지막 곡　${chat.lastSong}`}
+                  </LastSong>
+                </ChatInfo>
+
+                <ChatArrow>
+                  ›
+                </ChatArrow>
+              </ChatCard>
+            ))}
           </ChatList>
-        )}
-
-        {/* =========================
-            요청
-        ========================= */}
-        {activeTab === "requests" && (
-          <ChatList>
-            {requests.length > 0 ? (
-              requests.map((request) => (
-                <FriendCard
-                  key={request.id}
-                  type="button"
-                  onClick={() =>
-                    handleRequestClick(request.id)
-                  }
-                >
-                  <FriendProfile>
-                    <FriendSymbol
-                      src={dunjoSymbol}
-                      alt=""
-                    />
-                  </FriendProfile>
-
-                  <FriendContent>
-                    <FriendNameRow>
-                      <FriendName>
-                        {request.nickname}
-                      </FriendName>
-
-                      {request.unread && (
-                        <UnreadDot />
-                      )}
-                    </FriendNameRow>
-
-                    <LastSong>
-                      <span>던진 곡</span>
-                      {request.song}
-                    </LastSong>
-                  </FriendContent>
-
-                  <Arrow>›</Arrow>
-                </FriendCard>
-              ))
-            ) : (
-              <EmptyMessage>
-                새로운 친구 요청이 없습니다.
-              </EmptyMessage>
-            )}
-          </ChatList>
+        ) : (
+          <EmptyMessage>
+            {activeTab === "friends"
+              ? "아직 친구가 없어요."
+              : "새로운 요청이 없어요."}
+          </EmptyMessage>
         )}
       </ChatContent>
 
