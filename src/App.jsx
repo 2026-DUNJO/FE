@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
+import MatchSuccess from "./pages/MatchSuccess";
 
 function App() {
   return (
@@ -38,6 +39,11 @@ function App() {
       <Route
         path="/search"
         element={<Search />}
+      />
+
+      <Route
+        path="/match-success"
+        element={<MatchSuccess />}
       />
     </Routes>
   );
