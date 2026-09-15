@@ -1,17 +1,17 @@
-import dunjoLogo from "../../assets/dunjo-logo.svg";
+import Header from "../Header"
 
 import tasteIcon from "../../assets/home/taste.svg";
 import nearbyIcon from "../../assets/home/nearby.svg";
 import connectIcon from "../../assets/home/connect.svg";
 import spotifyIcon from "../../assets/home/spotify.svg";
+import beforeRadius from "../../assets/home/before_radius.svg";
 
 import {
   BeforeContainer,
-  BeforeHeader,
-  Wordmark,
-  ThrowText,
+  BeforeRadius,
   IntroSection,
   IntroTitle,
+  ThrowTextWrapper,
   IntroDescription,
   FeatureList,
   FeatureItem,
@@ -31,26 +31,19 @@ const BeforeHome = () => {
 
   return (
     <BeforeContainer>
-      <BeforeHeader>
-        <Wordmark
-          src={dunjoLogo}
-          alt="DUNJO"
-        />
-
-        <ThrowText>
-          THROW
-          <br />
-          YOUR
-          <br />
-          TASTE
-        </ThrowText>
-      </BeforeHeader>
-
+      <Header variant="taste" />
       <IntroSection>
         <IntroTitle>
           음악에
           <br />
-          운명을 <strong>던져!</strong>
+          운명을{" "}
+          <ThrowTextWrapper>
+          <strong>던져!</strong>
+            <BeforeRadius
+              src={beforeRadius}
+              alt=""
+            />
+          </ThrowTextWrapper>
         </IntroTitle>
 
         <IntroDescription>

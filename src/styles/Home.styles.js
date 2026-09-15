@@ -25,14 +25,16 @@ export const BeforeContainer = styled.div`
   width: 100%;
   height: 100%;
 
-  padding: 14px 9px 32px;
+  padding: 0 28px 32px;
+
+  box-sizing: border-box;
 
   background: var(--color-white);
 
   overflow-y: auto;
   overflow-x: hidden;
 
-  box-sizing: border-box;
+  overscroll-behavior: contain;
 
   scrollbar-width: none;
 
@@ -67,7 +69,7 @@ export const ThrowText = styled.p`
 `;
 
 export const IntroSection = styled.section`
-  margin-top: 62px;
+  margin-top: 36px;
 `;
 
 export const IntroTitle = styled.h1`
@@ -86,29 +88,29 @@ export const IntroTitle = styled.h1`
 `;
 
 export const IntroDescription = styled.p`
-  margin: 38px 0 0;
+  margin: 20px 0 0;
 
   color: var(--color-gray);
 
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.9;
+  line-height: 160%;
 
   letter-spacing: -0.4px;
 `;
 
 export const FeatureList = styled.div`
-  margin-top: 66px;
+  margin-top: 52px;
 
   display: flex;
   flex-direction: column;
 
-  gap: 38px;
+  gap: 36px;
 `;
 
 export const FeatureIcon = styled.img`
-  width: 52px;
-  height: 52px;
+  width: 36px;
+  height: 36px;
 
   flex-shrink: 0;
 
@@ -127,8 +129,9 @@ export const FeatureTitle = styled.h3`
 
   color: var(--color-black);
 
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 160%;
 `;
 
 export const FeatureDescription = styled.p`
@@ -145,7 +148,7 @@ export const SpotifyButton = styled.button`
   width: 100%;
   height: 64px;
 
-  margin-top: 38px;
+  margin-top: 64px;
 
   border: none;
   border-radius: 4px;
@@ -511,4 +514,22 @@ export const FeatureItem = styled.div`
   display: flex;
   align-items: center;
   gap: 24px;
+`;
+
+export const ThrowTextWrapper = styled.span`
+  position: relative;
+  display: inline-block;
+`;
+
+export const BeforeRadius = styled.img`
+  position: absolute;
+  z-index: 1;
+
+  width: 72px;
+  height: 72px;
+
+  right: -29px;
+  bottom: -22px;
+
+  pointer-events: none;
 `;
