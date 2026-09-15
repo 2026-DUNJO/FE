@@ -344,7 +344,7 @@ export const MatchingCard = styled.section`
 
   margin-top: 22px;
 
-  padding: 16px 20px;
+  padding: 16px 24px 24px 24px;
 
   box-sizing: border-box;
 
