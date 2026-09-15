@@ -9,7 +9,6 @@ export const HomeContainer = styled.main`
 
   width: 390px;
   max-width: 100%;
-
   height: 100dvh;
 
   background: var(--color-white);
@@ -198,7 +197,7 @@ export const AfterContainer = styled.div`
 export const AfterContent = styled.div`
   height: 100%;
 
-  padding: 64px 28px 100px;
+   padding: 0 28px 100px;
 
   overflow-y: auto;
 
