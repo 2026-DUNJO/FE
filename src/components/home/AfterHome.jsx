@@ -88,10 +88,6 @@ const AfterHome = () => {
               <StatusDot />
               MATCHING ON
             </MatchingStatus>
-
-            <MatchingArrow>
-              ›
-            </MatchingArrow>
           </MatchingHeader>
 
           {/* 레이더 */}

@@ -120,13 +120,6 @@ const Search = () => {
         ======================================== */}
 
         <SearchTop>
-          <BackButton
-            type="button"
-            onClick={() => navigate(-1)}
-            aria-label="뒤로가기"
-          >
-            ‹
-          </BackButton>
 
           <SearchTitle>
             {isPaused ? "Paused" : "Searching..."}
