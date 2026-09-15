@@ -4,10 +4,7 @@ import Splash from "./pages/Splash";
 import Select from "./pages/Select";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
-
-function Home() {
-  return <div>Home</div>;
-}
+import Home from "./pages/Home";
 
 function App() {
   return (
