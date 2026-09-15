@@ -98,7 +98,11 @@ export const RoomNickname = styled.strong`
   text-overflow: ellipsis;
 `;
 
-export const MoreButton = styled.button`
+/* ========================================
+   EXIT BUTTON
+======================================== */
+
+export const ExitButton = styled.button`
   width: 36px;
   height: 36px;
 
@@ -113,14 +117,22 @@ export const MoreButton = styled.button`
 
   background: transparent;
 
-  color: var(--color-black);
-
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 2px;
-
   cursor: pointer;
+
+  &:active {
+    transform: scale(0.94);
+  }
+`;
+
+export const ExitIcon = styled.img`
+  display: block;
+
+  width: 26px;
+  height: 26px;
+
+  object-fit: contain;
+
+  pointer-events: none;
 `;
 
 /* ========================================
@@ -181,10 +193,6 @@ export const SongTitle = styled.strong`
 
   text-align: center;
 `;
-
-/* ========================================
-   SONG CARD
-======================================== */
 
 export const SongCard = styled.div`
   width: 100%;
@@ -300,7 +308,7 @@ export const PlayIcon = styled.img`
 `;
 
 /* ========================================
-   ACCEPT BUTTON
+   ACCEPT
 ======================================== */
 
 export const AcceptButton = styled.button`
@@ -397,7 +405,7 @@ export const ThrowButton = styled.button`
 `;
 
 /* ========================================
-   SONG PICKER OVERLAY
+   COMMON OVERLAY
 ======================================== */
 
 export const Overlay = styled.div`
@@ -461,10 +469,6 @@ export const PickerDescription = styled.p`
   font-weight: 400;
   line-height: 1.5;
 `;
-
-/* ========================================
-   SONG OPTIONS
-======================================== */
 
 export const SongOptionList = styled.div`
   display: flex;
@@ -549,7 +553,6 @@ export const PickerSongArtist = styled.span`
   color: var(--color-gray);
 
   font-size: 12px;
-  font-weight: 400;
 
   white-space: nowrap;
   overflow: hidden;
@@ -570,6 +573,114 @@ export const CancelButton = styled.button`
 
   font-family: inherit;
   font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+`;
+
+/* ========================================
+   END FRIEND OVERLAY
+======================================== */
+
+export const EndFriendOverlay = styled.div`
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 100;
+
+  background: rgba(38, 38, 38, 0.72);
+`;
+
+/* ========================================
+   END FRIEND BOTTOM SHEET
+======================================== */
+
+export const EndFriendSheet = styled.section`
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 110;
+
+  width: 100%;
+
+  padding: 36px 28px 42px;
+
+  box-sizing: border-box;
+
+  border-radius: 24px 24px 0 0;
+
+  background: var(--color-white);
+`;
+
+export const EndFriendTitle = styled.h2`
+  margin: 0;
+
+  color: var(--color-black);
+
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  text-align: center;
+
+  letter-spacing: -0.6px;
+`;
+
+export const EndFriendDescription = styled.p`
+  margin: 24px 0 0;
+
+  color: var(--color-gray);
+
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.65;
+
+  text-align: center;
+
+  letter-spacing: -0.3px;
+`;
+
+export const EndFriendButton = styled.button`
+  width: 100%;
+  height: 48px;
+
+  margin-top: 32px;
+
+  border: none;
+  border-radius: 4px;
+
+  background: var(--color-main);
+  color: var(--color-white);
+
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  &:active {
+    transform: scale(0.99);
+  }
+`;
+
+export const EndFriendCancelButton = styled.button`
+  width: 100%;
+  height: 48px;
+
+  margin-top: 12px;
+
+  border: 1px solid var(--color-light-gray);
+  border-radius: 4px;
+
+  background: var(--color-white);
+  color: var(--color-black);
+
+  font-family: inherit;
+  font-size: 16px;
   font-weight: 600;
 
   cursor: pointer;

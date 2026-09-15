@@ -8,6 +8,7 @@ import Header from "../components/Header";
 
 import playBlack from "../assets/play_black.svg";
 import playWhite from "../assets/play_white.svg";
+import exitIcon from "../assets/exit.svg";
 
 import {
   getChatByRoomId,
@@ -20,7 +21,8 @@ import {
   RoomHeader,
   BackButton,
   RoomNickname,
-  MoreButton,
+  ExitButton,
+  ExitIcon,
 
   MessageList,
 
@@ -56,6 +58,13 @@ import {
   PickerSongArtist,
 
   CancelButton,
+
+  EndFriendOverlay,
+  EndFriendSheet,
+  EndFriendTitle,
+  EndFriendDescription,
+  EndFriendButton,
+  EndFriendCancelButton,
 } from "../styles/ChatRoom.styles";
 
 const ChatRoom = () => {
@@ -87,6 +96,11 @@ const ChatRoom = () => {
   const [isPickerOpen, setIsPickerOpen] =
     useState(false);
 
+  const [
+    isEndFriendOpen,
+    setIsEndFriendOpen,
+  ] = useState(false);
+
   /* ==============================
      MOCK MESSAGE
   ============================== */
@@ -98,7 +112,6 @@ const ChatRoom = () => {
 
     /*
       친구 요청 방
-      친구 3
     */
 
     if (chat.type === "request") {
@@ -114,8 +127,7 @@ const ChatRoom = () => {
 
             title: "like JENNIE",
 
-            artist:
-              "제니 (JENNIE)",
+            artist: "제니 (JENNIE)",
 
             albumImage: "",
           },
@@ -125,7 +137,6 @@ const ChatRoom = () => {
 
     /*
       이미 친구인 방
-      친구 1 / 친구 2
     */
 
     return [
@@ -142,8 +153,7 @@ const ChatRoom = () => {
 
           title: "like JENNIE",
 
-          artist:
-            "제니 (JENNIE)",
+          artist: "제니 (JENNIE)",
 
           albumImage: "",
         },
@@ -171,8 +181,7 @@ const ChatRoom = () => {
 
           title: "LEMONADE",
 
-          artist:
-            "aespa (에스파)",
+          artist: "aespa (에스파)",
 
           albumImage: "",
         },
@@ -191,8 +200,7 @@ const ChatRoom = () => {
 
           title: "UNIQUE",
 
-          artist:
-            "P1Harmony",
+          artist: "P1Harmony",
 
           albumImage: "",
         },
@@ -207,31 +215,22 @@ const ChatRoom = () => {
   const spotifySongs = [
     {
       spotifyTrackId: "spotify-1",
-
       title: "Mantra",
-
       artist: "JENNIE",
-
       albumImage: "",
     },
 
     {
       spotifyTrackId: "spotify-2",
-
       title: "LEMONADE",
-
       artist: "aespa",
-
       albumImage: "",
     },
 
     {
       spotifyTrackId: "spotify-3",
-
       title: "UNIQUE",
-
       artist: "P1Harmony",
-
       albumImage: "",
     },
   ];
@@ -257,8 +256,6 @@ const ChatRoom = () => {
     ]);
 
     // TODO
-    // 백엔드 연결
-    //
     // await acceptFriendRequest(chatRoomId);
   };
 
@@ -284,11 +281,8 @@ const ChatRoom = () => {
     setIsPickerOpen(false);
 
     // TODO
-    // 백엔드 연결
-    //
     // await sendSong(chatRoomId, {
-    //   spotifyTrackId:
-    //     song.spotifyTrackId,
+    //   spotifyTrackId: song.spotifyTrackId,
     // });
   };
 
@@ -303,6 +297,38 @@ const ChatRoom = () => {
       "Spotify 곡 재생:",
       spotifyTrackId
     );
+  };
+
+  /* ==============================
+     END FRIEND
+  ============================== */
+
+  const handleOpenEndFriend = () => {
+    setIsEndFriendOpen(true);
+  };
+
+  const handleCloseEndFriend = () => {
+    setIsEndFriendOpen(false);
+  };
+
+  const handleEndFriend = () => {
+    console.log(
+      "친구 관계 종료:",
+      chatRoomId
+    );
+
+    /*
+      TODO: 백엔드 연결 후
+
+      await endFriend(chatRoomId);
+
+      성공했을 때만
+      navigate("/chat");
+    */
+
+    setIsEndFriendOpen(false);
+
+    navigate("/chat");
   };
 
   /* ==============================
@@ -328,12 +354,6 @@ const ChatRoom = () => {
             <RoomNickname>
               존재하지 않는 친구
             </RoomNickname>
-
-            <MoreButton
-              type="button"
-            >
-              •••
-            </MoreButton>
           </RoomHeader>
         </ChatRoomContent>
       </ChatRoomContainer>
@@ -367,11 +387,18 @@ const ChatRoom = () => {
             {chat.nickname}
           </RoomNickname>
 
-          <MoreButton
+          <ExitButton
             type="button"
+            onClick={
+              handleOpenEndFriend
+            }
+            aria-label="친구 관계 종료"
           >
-            •••
-          </MoreButton>
+            <ExitIcon
+              src={exitIcon}
+              alt=""
+            />
+          </ExitButton>
         </RoomHeader>
 
         {/* ==============================
@@ -395,8 +422,7 @@ const ChatRoom = () => {
                     }
                   >
                     <SongTitle>
-                      친구 초대장을
-                      던졌어요.
+                      친구 초대장을 던졌어요.
                     </SongTitle>
 
                     <SongCard>
@@ -662,6 +688,50 @@ const ChatRoom = () => {
               취소
             </CancelButton>
           </SongPickerSheet>
+        </>
+      )}
+
+      {/* ==============================
+          END FRIEND MODAL
+      ============================== */}
+
+      {isEndFriendOpen && (
+        <>
+          <EndFriendOverlay
+            onClick={
+              handleCloseEndFriend
+            }
+          />
+
+          <EndFriendSheet>
+            <EndFriendTitle>
+              친구 관계를 종료할까요?
+            </EndFriendTitle>
+
+            <EndFriendDescription>
+              지금까지 주고받은 음악은
+              <br />
+              기록에 남지 않습니다.
+            </EndFriendDescription>
+
+            <EndFriendButton
+              type="button"
+              onClick={
+                handleEndFriend
+              }
+            >
+              친구 종료
+            </EndFriendButton>
+
+            <EndFriendCancelButton
+              type="button"
+              onClick={
+                handleCloseEndFriend
+              }
+            >
+              취소
+            </EndFriendCancelButton>
+          </EndFriendSheet>
         </>
       )}
     </ChatRoomContainer>
