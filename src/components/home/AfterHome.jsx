@@ -1,17 +1,12 @@
-import wordmark from "../../assets/dunjo-wordmark.svg";
-
-import bellIcon from "../../assets/home/bell.svg";
 import listenerIcon from "../../assets/home/listener.svg";
 import similarityIcon from "../../assets/home/similarity.svg";
 
 import NavBar from "../NavBar";
+import Header from "../Header";
 
 import {
   AfterContainer,
   AfterContent,
-  HomeHeader,
-  HomeWordmark,
-  BellButton,
 
   NowPlayingCard,
   AlbumCover,
@@ -61,23 +56,7 @@ const AfterHome = () => {
   return (
     <AfterContainer>
       <AfterContent>
-
-        {/* HEADER */}
-        <HomeHeader>
-          <HomeWordmark
-            src={wordmark}
-            alt="DUNJO"
-          />
-
-          <BellButton type="button">
-            <BellIcon
-              src={bellIcon}
-              alt="알림"
-            />
-          </BellButton>
-        </HomeHeader>
-
-
+        <Header/>
         {/* CURRENT TRACK */}
         <NowPlayingCard>
           <AlbumCover>

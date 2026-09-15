@@ -209,33 +209,6 @@ export const AfterContent = styled.div`
   }
 `;
 
-export const HomeHeader = styled.header`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-export const HomeWordmark = styled.img`
-  width: 158px;
-  height: auto;
-`;
-
-export const BellButton = styled.button`
-  width: 32px;
-  height: 32px;
-
-  padding: 0;
-
-  border: none;
-
-  background: transparent;
-  color: var(--color-black);
-
-  font-size: 20px;
-
-  cursor: pointer;
-`;
-
 /* ========================================
    NOW PLAYING
 ======================================== */

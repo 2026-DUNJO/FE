@@ -11,7 +11,7 @@ const Home = () => {
   // false = Spotify 연결 전
   // true  = Spotify 연결 후
   // ========================================
-  const [isSpotifyConnected] = useState(false);
+  const [isSpotifyConnected] = useState(true);
 
   return (
     <HomeContainer>
