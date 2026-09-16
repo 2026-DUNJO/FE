@@ -28,6 +28,17 @@ import {
   MatchProgress,
   MatchProgressFill,
 
+  // AI MUSIC DNA
+  MusicDNASection,
+  MusicDNAHeader,
+  MusicDNATitle,
+  AIBadge,
+  MusicDNATags,
+  MusicDNATag,
+  MatchReasonBox,
+  MatchReasonLabel,
+  MatchReasonText,
+
   BottomButtonArea,
   SkipButton,
   InviteButton,
@@ -54,39 +65,28 @@ const MatchSuccess = () => {
     },
 
     similarity: 73,
+
+    // TODO: 나중에 AI 분석 API 결과로 변경
+    musicDNA: [
+      "HIGH ENERGY",
+      "CONFIDENT",
+      "HIP-HOP",
+    ],
+
+    matchReason:
+      "두 곡 모두 강한 에너지와 자신감 있는 분위기를 가지고 있어요.",
   };
 
-  /* ========================================
-     지나가기
-
-     현재 매칭을 넘기고
-     다시 탐색 화면으로 이동
-
-     TODO:
-     나중에는 여기서 skip API 호출 후 이동
-  ======================================== */
   const handleSkip = () => {
     navigate("/search");
   };
 
-  /* ========================================
-     친구 초대장 보내기
-
-     현재는 프론트 UI 테스트만 진행
-
-     TODO:
-     나중에 백엔드 연결 시
-     1. 초대장 전송 API
-     2. chatRoomId 응답
-     3. 해당 채팅방으로 이동
-  ======================================== */
   const handleInvite = () => {
     console.log("친구 초대장 보내기");
     console.log("matchId:", matchData.matchId);
     console.log("matchedUserId:", matchData.matchedUserId);
 
-    // 나중에는 아래 형태로 변경
-    //
+    // TODO:
     // const response = await sendMatchInvite(matchData.matchId);
     // navigate(`/chat/${response.chatRoomId}`);
   };
@@ -94,7 +94,6 @@ const MatchSuccess = () => {
   return (
     <MatchSuccessContainer>
       <MatchSuccessContent>
-        {/* HEADER */}
         <Header />
 
         {/* MATCH SUCCESS */}
@@ -122,7 +121,6 @@ const MatchSuccess = () => {
 
         {/* SONG MATCH */}
         <SongsSection>
-          {/* 내 노래 */}
           <SongCard>
             <AlbumCover>
               {matchData.mySong.albumImage && (
@@ -142,13 +140,11 @@ const MatchSuccess = () => {
             </SongArtist>
           </SongCard>
 
-          {/* 연결 아이콘 */}
           <ConnectIcon
             src={connectIcon}
             alt=""
           />
 
-          {/* 상대 노래 */}
           <SongCard $matched>
             <AlbumCover>
               {matchData.matchedSong.albumImage && (
@@ -185,6 +181,33 @@ const MatchSuccess = () => {
             />
           </MatchProgress>
         </MatchCard>
+
+        {/* AI MUSIC DNA */}
+        <MusicDNASection>
+          <MusicDNAHeader>
+            <MusicDNATitle>
+              DUNJO's Pick!
+            </MusicDNATitle>
+
+            <AIBadge>
+              AI ANALYZED
+            </AIBadge>
+          </MusicDNAHeader>
+
+          <MusicDNATags>
+            {matchData.musicDNA.map((dna) => (
+              <MusicDNATag key={dna}>
+                {dna}
+              </MusicDNATag>
+            ))}
+          </MusicDNATags>
+
+          <MatchReasonBox>
+            <MatchReasonText>
+              {matchData.matchReason}
+            </MatchReasonText>
+          </MatchReasonBox>
+        </MusicDNASection>
 
         {/* BUTTON */}
         <BottomButtonArea>

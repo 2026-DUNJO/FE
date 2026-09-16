@@ -311,3 +311,89 @@ export const InviteButton = styled.button`
     transform: scale(0.98);
   }
 `;
+
+export const MusicDNASection = styled.section`
+  width: 100%;
+  margin-top: 14px;
+  padding: 18px;
+
+  border: 1px solid var(--color-light-light-gray);
+  border-radius: 16px;
+
+  background: var(--color-white);
+`;
+
+export const MusicDNAHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const MusicDNATitle = styled.h3`
+  margin: 0;
+
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-black);
+`;
+
+export const AIBadge = styled.span`
+  padding: 5px 8px;
+
+  border-radius: 20px;
+  background: var(--color-light-main);
+
+  font-size: 9px;
+  font-weight: 700;
+
+  color: var(--color-main);
+`;
+
+export const MusicDNATags = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 20px;
+`;
+
+export const MusicDNATag = styled.span`
+  padding: 7px 10px;
+
+  border: 1px solid var(--color-main);
+  border-radius: 20px;
+
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-main);
+
+  white-space: nowrap;
+`;
+
+export const MatchReasonBox = styled.div`
+  margin-top: 16px;
+  padding: 14px;
+
+  border-radius: 12px;
+  background: #f7f7f7;
+`;
+
+export const MatchReasonLabel = styled.div`
+  margin-bottom: 6px;
+
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+
+  color: var(--color-gray);
+`;
+
+export const MatchReasonText = styled.p`
+  margin: 0;
+
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.55;
+
+  color: var(--color-black);
+`;
