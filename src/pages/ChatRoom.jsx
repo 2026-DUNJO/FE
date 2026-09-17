@@ -1,18 +1,19 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import {
   useNavigate,
   useParams,
 } from "react-router-dom";
+
+import api from "../api/axios";
 
 import Header from "../components/Header";
 
 import playBlack from "../assets/play_black.svg";
 import playWhite from "../assets/play_white.svg";
 import exitIcon from "../assets/exit.svg";
-
-import {
-  getChatByRoomId,
-} from "../data/chatData";
 
 import {
   ChatRoomContainer,
@@ -27,7 +28,6 @@ import {
   MessageList,
 
   SongMessage,
-  SongTitle,
 
   SongCard,
   SongAlbum,
@@ -38,7 +38,6 @@ import {
   PlayButton,
   PlayIcon,
 
-  AcceptButton,
   SystemMessage,
 
   ThrowButtonArea,
@@ -49,6 +48,11 @@ import {
   PickerHandle,
   PickerTitle,
   PickerDescription,
+
+  SongSearchForm,
+  SongSearchInput,
+  SongSearchButton,
+  SongListTitle,
 
   SongOptionList,
   SongOption,
@@ -70,299 +74,520 @@ import {
 const ChatRoom = () => {
   const navigate = useNavigate();
 
-  /* ==============================
-     URL
-  ============================== */
-
-  const { chatRoomId } = useParams();
-
-  /* ==============================
-     CHAT DATA
-  ============================== */
-
-  const chat = getChatByRoomId(chatRoomId);
-
-  const isRequest =
-    chat?.type === "request";
+  const { chatRoomId } =
+    useParams();
 
   /* ==============================
      STATE
   ============================== */
 
-  const [status, setStatus] = useState(
-    isRequest ? "PENDING" : "ACCEPTED"
-  );
+  const [messages, setMessages] =
+    useState([]);
 
-  const [isPickerOpen, setIsPickerOpen] =
+  const [
+    spotifySongs,
+    setSpotifySongs,
+  ] = useState([]);
+
+  const [
+    searchResults,
+    setSearchResults,
+  ] = useState([]);
+
+  const [searchQuery, setSearchQuery] =
+    useState("");
+
+  const [isSearching, setIsSearching] =
     useState(false);
+
+  const [
+    friendship,
+    setFriendship,
+  ] = useState(null);
+
+  const [nickname, setNickname] =
+    useState("친구");
+
+  const [myUserId, setMyUserId] =
+    useState(null);
+
+  const [isLoading, setIsLoading] =
+    useState(true);
+
+  const [
+    isPickerOpen,
+    setIsPickerOpen,
+  ] = useState(false);
 
   const [
     isEndFriendOpen,
     setIsEndFriendOpen,
   ] = useState(false);
 
-  /* ==============================
-     MOCK MESSAGE
-  ============================== */
-
-  const [messages, setMessages] = useState(() => {
-    if (!chat) {
-      return [];
-    }
-
-    /*
-      친구 요청 방
-    */
-
-    if (chat.type === "request") {
-      return [
-        {
-          id: 1,
-          type: "INVITE",
-          mine: false,
-
-          song: {
-            spotifyTrackId:
-              "track-like-jennie",
-
-            title: "like JENNIE",
-
-            artist: "제니 (JENNIE)",
-
-            albumImage: "",
-          },
-        },
-      ];
-    }
-
-    /*
-      이미 친구인 방
-    */
-
-    return [
-      {
-        id: 1,
-
-        type: "INVITE",
-
-        mine: true,
-
-        song: {
-          spotifyTrackId:
-            "track-like-jennie",
-
-          title: "like JENNIE",
-
-          artist: "제니 (JENNIE)",
-
-          albumImage: "",
-        },
-      },
-
-      {
-        id: 2,
-
-        type: "SYSTEM",
-
-        text:
-          "친구 초대장을 수락했어요.",
-      },
-
-      {
-        id: 3,
-
-        type: "SONG",
-
-        mine: true,
-
-        song: {
-          spotifyTrackId:
-            "track-lemonade",
-
-          title: "LEMONADE",
-
-          artist: "aespa (에스파)",
-
-          albumImage: "",
-        },
-      },
-
-      {
-        id: 4,
-
-        type: "SONG",
-
-        mine: false,
-
-        song: {
-          spotifyTrackId:
-            "track-unique",
-
-          title: "UNIQUE",
-
-          artist: "P1Harmony",
-
-          albumImage: "",
-        },
-      },
-    ];
-  });
+  const [isSending, setIsSending] =
+    useState(false);
 
   /* ==============================
-     MOCK SPOTIFY SONG
+     내 정보 조회
   ============================== */
 
-  const spotifySongs = [
-    {
-      spotifyTrackId: "spotify-1",
-      title: "Mantra",
-      artist: "JENNIE",
-      albumImage: "",
-    },
+  const fetchMe = async () => {
+    const response =
+      await api.get("/users/me");
 
-    {
-      spotifyTrackId: "spotify-2",
-      title: "LEMONADE",
-      artist: "aespa",
-      albumImage: "",
-    },
+    setMyUserId(
+      response.data.id
+    );
 
-    {
-      spotifyTrackId: "spotify-3",
-      title: "UNIQUE",
-      artist: "P1Harmony",
-      albumImage: "",
-    },
-  ];
-
-  /* ==============================
-     ACCEPT
-  ============================== */
-
-  const handleAccept = () => {
-    setStatus("ACCEPTED");
-
-    setMessages((prev) => [
-      ...prev,
-
-      {
-        id: Date.now(),
-
-        type: "SYSTEM",
-
-        text:
-          "친구 초대장을 수락했어요.",
-      },
-    ]);
-
-    // TODO
-    // await acceptFriendRequest(chatRoomId);
+    return response.data;
   };
 
   /* ==============================
-     THROW SONG
+     친구 정보 조회
   ============================== */
 
-  const handleThrowSong = (song) => {
-    setMessages((prev) => [
-      ...prev,
+  const fetchFriendship =
+    async () => {
+      const response =
+        await api.get(
+          "/friendships"
+        );
 
-      {
-        id: Date.now(),
+      const friendshipList =
+        Array.isArray(response.data)
+          ? response.data
+          : [];
 
-        type: "SONG",
+      const currentFriendship =
+        friendshipList.find(
+          (item) =>
+            Number(
+              item.chatRoomId
+            ) ===
+            Number(chatRoomId)
+        );
 
-        mine: true,
+      if (!currentFriendship) {
+        return null;
+      }
 
-        song,
-      },
-    ]);
+      setFriendship(
+        currentFriendship
+      );
 
+      setNickname(
+        currentFriendship.friend
+          ?.nickname ||
+          currentFriendship.nickname ||
+          "친구"
+      );
+
+      return currentFriendship;
+    };
+
+  /* ==============================
+     메시지 조회
+  ============================== */
+
+  const fetchMessages =
+    async () => {
+      const response =
+        await api.get(
+          `/chatrooms/${chatRoomId}/messages`
+        );
+
+      console.log(
+        "채팅 메시지:",
+        response.data
+      );
+
+      setMessages(
+        Array.isArray(response.data)
+          ? response.data
+          : []
+      );
+    };
+
+  /* ==============================
+     최근 Spotify 곡
+  ============================== */
+
+  const fetchSpotifySongs =
+    async () => {
+      try {
+        const response =
+          await api.get(
+            "/spotify/recently-played"
+          );
+
+        setSpotifySongs(
+          Array.isArray(response.data)
+            ? response.data
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "최근 Spotify 곡 조회 실패:",
+          error.response?.data ||
+            error
+        );
+
+        setSpotifySongs([]);
+      }
+    };
+
+  /* ==============================
+     Spotify 곡 검색
+  ============================== */
+
+  const handleSearch =
+    async (event) => {
+      event.preventDefault();
+
+      const query =
+        searchQuery.trim();
+
+      if (!query) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        setIsSearching(true);
+
+        const response =
+          await api.get(
+            "/spotify/search",
+            {
+              params: {
+                q: query,
+              },
+            }
+          );
+
+        console.log(
+          "Spotify 검색 결과:",
+          response.data
+        );
+
+        setSearchResults(
+          Array.isArray(response.data)
+            ? response.data
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "Spotify 곡 검색 실패:",
+          error.response?.data ||
+            error
+        );
+
+        setSearchResults([]);
+
+        alert(
+          error.response?.data
+            ?.message ||
+            "Spotify 곡 검색에 실패했습니다."
+        );
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+  /* ==============================
+     검색어 변경
+  ============================== */
+
+  const handleSearchChange =
+    (event) => {
+      const value =
+        event.target.value;
+
+      setSearchQuery(value);
+
+      /*
+        검색어를 전부 지우면
+        다시 최근 재생곡 목록 표시
+      */
+
+      if (!value.trim()) {
+        setSearchResults([]);
+      }
+    };
+
+  /* ==============================
+   최초 로딩
+============================== */
+
+useEffect(() => {
+  const initialize = async () => {
+    try {
+      setIsLoading(true);
+
+      await Promise.all([
+        fetchMe(),
+        fetchFriendship(),
+        fetchMessages(),
+      ]);
+    } catch (error) {
+      console.error(
+        "채팅방 조회 실패:",
+        error.response?.data || error
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  initialize();
+}, [chatRoomId]);
+
+
+/* ==============================
+   채팅 메시지 Polling
+   5초마다 새 곡 확인
+============================== */
+
+useEffect(() => {
+  if (!chatRoomId) {
+    return;
+  }
+
+  const intervalId = setInterval(() => {
+    fetchMessages().catch((error) => {
+      console.error(
+        "채팅 메시지 자동 갱신 실패:",
+        error.response?.data || error
+      );
+    });
+  }, 5000);
+
+  return () => {
+    clearInterval(intervalId);
+  };
+}, [chatRoomId]);
+
+  /* ==============================
+     곡 선택창 열기
+  ============================== */
+
+  const handleOpenPicker =
+    async () => {
+      setSearchQuery("");
+      setSearchResults([]);
+
+      setIsPickerOpen(true);
+
+      await fetchSpotifySongs();
+    };
+
+  /* ==============================
+     곡 선택창 닫기
+  ============================== */
+
+  const handleClosePicker = () => {
     setIsPickerOpen(false);
 
-    // TODO
-    // await sendSong(chatRoomId, {
-    //   spotifyTrackId: song.spotifyTrackId,
-    // });
+    setSearchQuery("");
+    setSearchResults([]);
   };
 
   /* ==============================
-     PLAY
+     곡 던지기
+  ============================== */
+
+  const handleThrowSong =
+    async (song) => {
+      if (isSending) {
+        return;
+      }
+
+      try {
+        setIsSending(true);
+
+        const response =
+          await api.post(
+            `/chatrooms/${chatRoomId}/messages`,
+            {
+              spotifyTrackId:
+                song.spotifyTrackId,
+
+              trackTitle:
+                song.title,
+
+              trackArtist:
+                song.artist,
+
+              albumImage:
+                song.albumImage ||
+                null,
+
+              spotifyUrl:
+                song.spotifyUrl ||
+                null,
+            }
+          );
+
+        console.log(
+          "곡 던지기 성공:",
+          response.data
+        );
+
+        handleClosePicker();
+
+        await fetchMessages();
+      } catch (error) {
+        console.error(
+          "곡 던지기 실패:",
+          error.response?.data ||
+            error
+        );
+
+        alert(
+          error.response?.data
+            ?.message ||
+            "곡을 던지지 못했습니다."
+        );
+      } finally {
+        setIsSending(false);
+      }
+    };
+
+  /* ==============================
+     Spotify 열기
   ============================== */
 
   const handlePlay = (
-    spotifyTrackId
+    spotifyUrl
   ) => {
-    console.log(
-      "Spotify 곡 재생:",
-      spotifyTrackId
+    if (!spotifyUrl) {
+      return;
+    }
+
+    window.open(
+      spotifyUrl,
+      "_blank",
+      "noopener,noreferrer"
     );
   };
 
   /* ==============================
-     END FRIEND
+     친구 종료 모달
   ============================== */
 
-  const handleOpenEndFriend = () => {
-    setIsEndFriendOpen(true);
-  };
+  const handleOpenEndFriend =
+    () => {
+      setIsEndFriendOpen(true);
+    };
 
-  const handleCloseEndFriend = () => {
-    setIsEndFriendOpen(false);
-  };
-
-  const handleEndFriend = () => {
-    console.log(
-      "친구 관계 종료:",
-      chatRoomId
-    );
-
-    /*
-      TODO: 백엔드 연결 후
-
-      await endFriend(chatRoomId);
-
-      성공했을 때만
-      navigate("/chat");
-    */
-
-    setIsEndFriendOpen(false);
-
-    navigate("/chat");
-  };
+  const handleCloseEndFriend =
+    () => {
+      setIsEndFriendOpen(false);
+    };
 
   /* ==============================
-     NOT FOUND
+     친구 관계 종료
   ============================== */
 
-  if (!chat) {
+  const handleEndFriend =
+    async () => {
+      if (!friendship) {
+        alert(
+          "친구 관계 정보를 찾을 수 없습니다."
+        );
+
+        return;
+      }
+
+      const friendshipId =
+        friendship.friendshipId ??
+        friendship.id;
+
+      try {
+        await api.delete(
+          `/friendships/${friendshipId}`
+        );
+
+        console.log(
+          "친구 관계 종료:",
+          friendshipId
+        );
+
+        setIsEndFriendOpen(false);
+
+        navigate("/chat", {
+          replace: true,
+        });
+      } catch (error) {
+        console.error(
+          "친구 관계 종료 실패:",
+          error.response?.data ||
+            error
+        );
+
+        alert(
+          error.response?.data
+            ?.message ||
+            "친구 관계를 종료하지 못했습니다."
+        );
+      }
+    };
+
+  /* ==============================
+     메시지 → 화면용 데이터
+  ============================== */
+
+  const getMessageSong = (
+    message
+  ) => ({
+    spotifyTrackId:
+      message.spotifyTrackId,
+
+    title:
+      message.trackTitle,
+
+    artist:
+      message.trackArtist,
+
+    albumImage:
+      message.albumImage,
+
+    spotifyUrl:
+      message.spotifyUrl,
+  });
+
+  /* ==============================
+     곡 선택기에 표시할 목록
+
+     검색어 없음
+     → 최근 재생곡
+
+     검색 결과 있음
+     → 검색 결과
+  ============================== */
+
+  const displayedSongs =
+    searchQuery.trim()
+      ? searchResults
+      : spotifySongs;
+
+  /* ==============================
+     LOADING
+  ============================== */
+
+  if (isLoading) {
     return (
       <ChatRoomContainer>
         <ChatRoomContent>
           <Header />
 
-          <RoomHeader>
-            <BackButton
-              type="button"
-              onClick={() =>
-                navigate("/chat")
-              }
-            >
-              ‹
-            </BackButton>
-
-            <RoomNickname>
-              존재하지 않는 친구
-            </RoomNickname>
-          </RoomHeader>
+          <SystemMessage>
+            채팅방을 불러오는 중...
+          </SystemMessage>
         </ChatRoomContent>
       </ChatRoomContainer>
     );
   }
-
-  /* ==============================
-     PAGE
-  ============================== */
 
   return (
     <ChatRoomContainer>
@@ -370,7 +595,7 @@ const ChatRoom = () => {
         <Header />
 
         {/* ==============================
-            ROOM HEADER
+            HEADER
         ============================== */}
 
         <RoomHeader>
@@ -384,7 +609,7 @@ const ChatRoom = () => {
           </BackButton>
 
           <RoomNickname>
-            {chat.nickname}
+            {nickname}
           </RoomNickname>
 
           <ExitButton
@@ -402,43 +627,43 @@ const ChatRoom = () => {
         </RoomHeader>
 
         {/* ==============================
-            MESSAGE
+            MESSAGE LIST
         ============================== */}
 
         <MessageList>
-          {messages.map(
-            (message) => {
-              /* INVITE */
+          {messages.length === 0 ? (
+            <SystemMessage>
+              아직 주고받은 곡이
+              없어요.
+            </SystemMessage>
+          ) : (
+            messages.map(
+              (message) => {
+                const mine =
+                  Number(
+                    message.senderId
+                  ) ===
+                  Number(myUserId);
 
-              if (
-                message.type ===
-                "INVITE"
-              ) {
+                const song =
+                  getMessageSong(
+                    message
+                  );
+
                 return (
                   <SongMessage
                     key={message.id}
-                    $mine={
-                      message.mine
-                    }
+                    $mine={mine}
                   >
-                    <SongTitle>
-                      친구 초대장을 던졌어요.
-                    </SongTitle>
-
                     <SongCard>
                       <SongAlbum>
-                        {message.song
-                          .albumImage && (
+                        {song.albumImage && (
                           <img
                             src={
-                              message
-                                .song
-                                .albumImage
+                              song.albumImage
                             }
                             alt={
-                              message
-                                .song
-                                .title
+                              song.title
                             }
                           />
                         )}
@@ -446,17 +671,11 @@ const ChatRoom = () => {
 
                       <SongInfo>
                         <SongName>
-                          {
-                            message.song
-                              .title
-                          }
+                          {song.title}
                         </SongName>
 
                         <SongArtist>
-                          {
-                            message.song
-                              .artist
-                          }
+                          {song.artist}
                         </SongArtist>
                       </SongInfo>
 
@@ -464,151 +683,46 @@ const ChatRoom = () => {
                         type="button"
                         onClick={() =>
                           handlePlay(
-                            message
-                              .song
-                              .spotifyTrackId
+                            song.spotifyUrl
                           )
                         }
                       >
                         <PlayIcon
                           src={
-                            message.mine
+                            mine
                               ? playWhite
                               : playBlack
                           }
-                          alt="재생"
-                        />
-                      </PlayButton>
-                    </SongCard>
-
-                    {!message.mine &&
-                      status ===
-                        "PENDING" && (
-                        <AcceptButton
-                          type="button"
-                          onClick={
-                            handleAccept
-                          }
-                        >
-                          수락하기
-                        </AcceptButton>
-                      )}
-                  </SongMessage>
-                );
-              }
-
-              /* SYSTEM */
-
-              if (
-                message.type ===
-                "SYSTEM"
-              ) {
-                return (
-                  <SystemMessage
-                    key={message.id}
-                  >
-                    {message.text}
-                  </SystemMessage>
-                );
-              }
-
-              /* SONG */
-
-              if (
-                message.type ===
-                "SONG"
-              ) {
-                return (
-                  <SongMessage
-                    key={message.id}
-                    $mine={
-                      message.mine
-                    }
-                  >
-                    <SongCard>
-                      <SongAlbum>
-                        {message.song
-                          .albumImage && (
-                          <img
-                            src={
-                              message
-                                .song
-                                .albumImage
-                            }
-                            alt={
-                              message
-                                .song
-                                .title
-                            }
-                          />
-                        )}
-                      </SongAlbum>
-
-                      <SongInfo>
-                        <SongName>
-                          {
-                            message.song
-                              .title
-                          }
-                        </SongName>
-
-                        <SongArtist>
-                          {
-                            message.song
-                              .artist
-                          }
-                        </SongArtist>
-                      </SongInfo>
-
-                      <PlayButton
-                        type="button"
-                        onClick={() =>
-                          handlePlay(
-                            message
-                              .song
-                              .spotifyTrackId
-                          )
-                        }
-                      >
-                        <PlayIcon
-                          src={
-                            message.mine
-                              ? playWhite
-                              : playBlack
-                          }
-                          alt="재생"
+                          alt="Spotify에서 열기"
                         />
                       </PlayButton>
                     </SongCard>
                   </SongMessage>
                 );
               }
-
-              return null;
-            }
+            )
           )}
         </MessageList>
       </ChatRoomContent>
 
       {/* ==============================
-          THROW BUTTON
+          곡 던지기 버튼
       ============================== */}
 
-      {status === "ACCEPTED" && (
-        <ThrowButtonArea>
-          <ThrowButton
-            type="button"
-            onClick={() =>
-              setIsPickerOpen(true)
-            }
-          >
-            ♫
-            <span>
-              곡 던지기
-            </span>
-          </ThrowButton>
-        </ThrowButtonArea>
-      )}
+      <ThrowButtonArea>
+        <ThrowButton
+          type="button"
+          onClick={
+            handleOpenPicker
+          }
+        >
+          ♫
+
+          <span>
+            곡 던지기
+          </span>
+        </ThrowButton>
+      </ThrowButtonArea>
 
       {/* ==============================
           SONG PICKER
@@ -617,8 +731,8 @@ const ChatRoom = () => {
       {isPickerOpen && (
         <>
           <Overlay
-            onClick={() =>
-              setIsPickerOpen(false)
+            onClick={
+              handleClosePicker
             }
           />
 
@@ -630,59 +744,122 @@ const ChatRoom = () => {
             </PickerTitle>
 
             <PickerDescription>
-              Spotify에서 상대에게
-              던질 곡을 선택해주세요.
+              상대에게 던질 곡을
+              선택해주세요.
             </PickerDescription>
 
+            {/* ==========================
+                SPOTIFY SEARCH
+            ========================== */}
+
+            <SongSearchForm
+              onSubmit={
+                handleSearch
+              }
+            >
+              <SongSearchInput
+                type="text"
+                value={
+                  searchQuery
+                }
+                onChange={
+                  handleSearchChange
+                }
+                placeholder="곡 또는 아티스트 검색"
+              />
+
+              <SongSearchButton
+                type="submit"
+                disabled={
+                  isSearching
+                }
+              >
+                {isSearching
+                  ? "검색 중"
+                  : "검색"}
+              </SongSearchButton>
+            </SongSearchForm>
+
+            {/* ==========================
+                LIST TITLE
+            ========================== */}
+
+            <SongListTitle>
+              {searchQuery.trim()
+                ? "Spotify 검색 결과"
+                : "최근 들은 곡"}
+            </SongListTitle>
+
+            {/* ==========================
+                SCROLL LIST
+            ========================== */}
+
             <SongOptionList>
-              {spotifySongs.map(
-                (song) => (
-                  <SongOption
-                    key={
-                      song.spotifyTrackId
-                    }
-                    type="button"
-                    onClick={() =>
-                      handleThrowSong(
-                        song
-                      )
-                    }
-                  >
-                    <PickerAlbum>
-                      {song.albumImage && (
-                        <img
-                          src={
-                            song.albumImage
-                          }
-                          alt={
-                            song.title
-                          }
-                        />
-                      )}
-                    </PickerAlbum>
+              {isSearching ? (
+                <SystemMessage>
+                  Spotify에서
+                  검색하고 있어요.
+                </SystemMessage>
+              ) : displayedSongs.length >
+                0 ? (
+                displayedSongs.map(
+                  (song) => (
+                    <SongOption
+                      key={
+                        song.spotifyTrackId
+                      }
+                      type="button"
+                      disabled={
+                        isSending
+                      }
+                      onClick={() =>
+                        handleThrowSong(
+                          song
+                        )
+                      }
+                    >
+                      <PickerAlbum>
+                        {song.albumImage && (
+                          <img
+                            src={
+                              song.albumImage
+                            }
+                            alt={
+                              song.title
+                            }
+                          />
+                        )}
+                      </PickerAlbum>
 
-                    <PickerSongInfo>
-                      <PickerSongTitle>
-                        {song.title}
-                      </PickerSongTitle>
+                      <PickerSongInfo>
+                        <PickerSongTitle>
+                          {song.title}
+                        </PickerSongTitle>
 
-                      <PickerSongArtist>
-                        {song.artist}
-                      </PickerSongArtist>
-                    </PickerSongInfo>
+                        <PickerSongArtist>
+                          {song.artist}
+                        </PickerSongArtist>
+                      </PickerSongInfo>
 
-                    <span>
-                      ›
-                    </span>
-                  </SongOption>
+                      <span>
+                        ›
+                      </span>
+                    </SongOption>
+                  )
                 )
+              ) : (
+                <SystemMessage>
+                  {searchQuery.trim()
+                    ? "검색 결과가 없어요."
+                    : "최근 들은 곡이 없어요."}
+                </SystemMessage>
               )}
             </SongOptionList>
 
             <CancelButton
               type="button"
-              onClick={() =>
-                setIsPickerOpen(false)
+              onClick={
+                handleClosePicker
               }
             >
               취소
@@ -692,7 +869,7 @@ const ChatRoom = () => {
       )}
 
       {/* ==============================
-          END FRIEND MODAL
+          친구 종료
       ============================== */}
 
       {isEndFriendOpen && (

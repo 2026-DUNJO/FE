@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import api from "../api/axios";
+
 import symbol from "../assets/dunjo-symbol.svg";
 
 import { PageContainer } from "../styles/Common.styles";
@@ -35,6 +37,7 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     userId: "",
@@ -84,6 +87,65 @@ const Signup = () => {
       ...prev,
       [key]: !prev[key],
     }));
+  };
+
+  // =========================
+  // 실제 회원가입 API
+  // =========================
+  const handleSignup = async () => {
+    if (!allTermsChecked || isLoading) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      // 1. 회원가입
+      await api.post("/auth/signup", {
+        userId: formData.userId.trim(),
+        password: formData.password,
+        nickname: formData.nickname.trim(),
+      });
+
+      console.log("회원가입 성공");
+
+      // 2. 회원가입 직후 자동 로그인
+      const loginResponse = await api.post(
+        "/auth/login",
+        {
+          userId: formData.userId.trim(),
+          password: formData.password,
+        }
+      );
+
+      // 3. accessToken 저장
+      localStorage.setItem(
+        "accessToken",
+        loginResponse.data.accessToken
+      );
+
+      console.log("자동 로그인 성공");
+
+      // 4. 가입 완료 화면
+      setStep(6);
+    } catch (error) {
+      console.error(
+        "회원가입 실패",
+        error.response?.data || error
+      );
+
+      const message =
+        error.response?.data?.message ||
+        "회원가입에 실패했습니다.";
+
+      alert(
+        Array.isArray(message)
+          ? message.join("\n")
+          : message
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /* =========================
@@ -238,9 +300,7 @@ const Signup = () => {
               id="passwordConfirm"
               type="password"
               placeholder="비밀번호"
-              value={
-                formData.passwordConfirm
-              }
+              value={formData.passwordConfirm}
               onChange={(e) =>
                 updateForm(
                   "passwordConfirm",
@@ -342,8 +402,7 @@ const Signup = () => {
 
               <PreviousValue>
                 {"*".repeat(
-                  formData.passwordConfirm
-                    .length
+                  formData.passwordConfirm.length
                 )}
               </PreviousValue>
             </PreviousItem>
@@ -400,7 +459,6 @@ const Signup = () => {
   if (step === 5) {
     return (
       <PageContainer>
-        {/* 뒤에 기존 닉네임 화면이 보이도록 */}
         <SignupContent>
           <Logo src={symbol} alt="DUNJO" />
 
@@ -426,8 +484,7 @@ const Signup = () => {
 
               <PreviousValue>
                 {"*".repeat(
-                  formData.passwordConfirm
-                    .length
+                  formData.passwordConfirm.length
                 )}
               </PreviousValue>
             </PreviousItem>
@@ -484,9 +541,7 @@ const Signup = () => {
                 toggleTerm("age")
               }
             >
-              <CheckBox
-                $checked={terms.age}
-              >
+              <CheckBox $checked={terms.age}>
                 {terms.age ? "✓" : ""}
               </CheckBox>
 
@@ -495,14 +550,12 @@ const Signup = () => {
 
             <TermsItem
               type="button"
-                $checked={terms.privacy}
+              $checked={terms.privacy}
               onClick={() =>
                 toggleTerm("privacy")
               }
             >
-              <CheckBox
-                $checked={terms.privacy}
-              >
+              <CheckBox $checked={terms.privacy}>
                 {terms.privacy ? "✓" : ""}
               </CheckBox>
 
@@ -511,14 +564,12 @@ const Signup = () => {
 
             <TermsItem
               type="button"
-                $checked={terms.location}
+              $checked={terms.location}
               onClick={() =>
                 toggleTerm("location")
               }
             >
-              <CheckBox
-                $checked={terms.location}
-              >
+              <CheckBox $checked={terms.location}>
                 {terms.location ? "✓" : ""}
               </CheckBox>
 
@@ -529,11 +580,19 @@ const Signup = () => {
           <NextButton
             type="button"
             $full
-            $active={allTermsChecked}
-            disabled={!allTermsChecked}
-            onClick={handleNext}
+            $active={
+              allTermsChecked &&
+              !isLoading
+            }
+            disabled={
+              !allTermsChecked ||
+              isLoading
+            }
+            onClick={handleSignup}
           >
-            다음
+            {isLoading
+              ? "가입 중..."
+              : "다음"}
           </NextButton>
         </TermsSheet>
       </PageContainer>
@@ -544,33 +603,35 @@ const Signup = () => {
      STEP 6 : COMPLETE
   ========================= */
 
-return (
-  <PageContainer>
-    <CompleteContainer>
-      <CompleteLogo
-        src={symbol}
-        alt="DUNJO"
-      />
+  return (
+    <PageContainer>
+      <CompleteContainer>
+        <CompleteLogo
+          src={symbol}
+          alt="DUNJO"
+        />
 
-      <CompleteText>
-        환영합니다
-        <br />
-        {formData.nickname}
-      </CompleteText>
+        <CompleteText>
+          환영합니다
+          <br />
+          {formData.nickname}
+        </CompleteText>
 
-      <BottomButtonArea>
-        <NextButton
-          type="button"
-          $full
-          $active
-          onClick={() => navigate("/home")}
-        >
-          시작하기
-        </NextButton>
-      </BottomButtonArea>
-    </CompleteContainer>
-  </PageContainer>
-);
+        <BottomButtonArea>
+          <NextButton
+            type="button"
+            $full
+            $active
+            onClick={() =>
+              navigate("/home")
+            }
+          >
+            시작하기
+          </NextButton>
+        </BottomButtonArea>
+      </CompleteContainer>
+    </PageContainer>
+  );
 };
 
 export default Signup;

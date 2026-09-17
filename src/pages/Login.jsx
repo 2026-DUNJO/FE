@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import api from "../api/axios";
+
 import symbol from "../assets/dunjo-symbol.svg";
 
 import { PageContainer } from "../styles/Common.styles";
@@ -31,6 +33,8 @@ const Login = () => {
     password: "",
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const updateForm = (key, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -51,11 +55,44 @@ const Login = () => {
     setStep((prev) => prev - 1);
   };
 
-  const handleLogin = () => {
-    // 나중에 로그인 API 연결
-    console.log("로그인 정보", formData);
+  // =========================
+  // 실제 로그인 API
+  // =========================
+  const handleLogin = async () => {
+    if (isLoading) return;
 
-    navigate("/home");
+    try {
+      setIsLoading(true);
+
+      const response = await api.post("/auth/login", {
+        userId: formData.userId.trim(),
+        password: formData.password,
+      });
+
+      console.log("로그인 성공", response.data);
+
+      // accessToken 저장
+      localStorage.setItem(
+        "accessToken",
+        response.data.accessToken
+      );
+
+      // 로그인 성공 후 홈으로 이동
+      navigate("/home");
+    } catch (error) {
+      console.error(
+        "로그인 실패",
+        error.response?.data || error
+      );
+
+      const message =
+        error.response?.data?.message ||
+        "로그인에 실패했습니다.";
+
+      alert(message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /* =========================
@@ -170,17 +207,18 @@ const Login = () => {
             <BackButton
               type="button"
               onClick={handleBack}
+              disabled={isLoading}
             >
               뒤로
             </BackButton>
 
             <NextButton
               type="button"
-              $active={isValid}
-              disabled={!isValid}
+              $active={isValid && !isLoading}
+              disabled={!isValid || isLoading}
               onClick={handleLogin}
             >
-              로그인
+              {isLoading ? "로그인 중..." : "로그인"}
             </NextButton>
           </BottomButtonArea>
         </SignupContent>

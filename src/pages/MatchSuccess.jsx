@@ -1,4 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import {
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
+import api from "../api/axios";
 
 import Header from "../components/Header";
 
@@ -28,7 +33,6 @@ import {
   MatchProgress,
   MatchProgressFill,
 
-  // AI MUSIC DNA
   MusicDNASection,
   MusicDNAHeader,
   MusicDNATitle,
@@ -36,7 +40,6 @@ import {
   MusicDNATags,
   MusicDNATag,
   MatchReasonBox,
-  MatchReasonLabel,
   MatchReasonText,
 
   BottomButtonArea,
@@ -46,57 +49,232 @@ import {
 
 const MatchSuccess = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // TODO: 나중에 Spotify / 백엔드 데이터로 변경
+  /* ========================================
+     Search.jsx에서 전달받은 실제 매칭 데이터
+  ======================================== */
+
+  const match = location.state?.match;
+
+  /* ========================================
+     잘못된 접근 방지
+
+     /match-success 주소로 직접 들어왔거나
+     매칭 데이터가 없는 경우
+  ======================================== */
+
+  if (!match) {
+    return (
+      <MatchSuccessContainer>
+        <MatchSuccessContent>
+          <Header />
+
+          <SuccessSection>
+            <SuccessTitle>
+              Match
+              <br />
+
+              <SuccessTitleAccent>
+                Not Found
+              </SuccessTitleAccent>
+            </SuccessTitle>
+
+            <SuccessDescription>
+              매칭 정보를 찾을 수 없습니다.
+            </SuccessDescription>
+          </SuccessSection>
+
+          <BottomButtonArea>
+            <InviteButton
+              type="button"
+              onClick={() =>
+                navigate("/search")
+              }
+            >
+              다시 탐색하기
+            </InviteButton>
+          </BottomButtonArea>
+        </MatchSuccessContent>
+      </MatchSuccessContainer>
+    );
+  }
+
+  /* ========================================
+     대표 연결곡
+
+     백엔드에서 가장 강한 곡 연결 하나를
+     representativeConnection으로 전달
+  ======================================== */
+
+  const representativeConnection =
+    match.representativeConnection;
+
+  /* ========================================
+     화면에서 사용할 데이터 정리
+  ======================================== */
+
   const matchData = {
-    matchId: 123,
-    matchedUserId: 27,
+    matchedUserId: match.user.id,
+
+    matchedUserNickname:
+      match.user.nickname,
 
     mySong: {
-      title: "like JENNIE",
-      artist: "제니 (JENNIE)",
-      albumImage: "",
+      title:
+        representativeConnection
+          ?.myTrack?.title ||
+        "알 수 없는 곡",
+
+      artist:
+        representativeConnection
+          ?.myTrack?.artist ||
+        "알 수 없는 아티스트",
+
+      spotifyTrackId:
+        representativeConnection
+          ?.myTrack
+          ?.spotifyTrackId,
+
+      albumImage:
+        representativeConnection
+          ?.myTrack?.albumImage || "",
+
+        spotifyUrl:
+          representativeConnection.myTrack?.spotifyUrl || "",
     },
 
     matchedSong: {
-      title: "락 (樂)",
-      artist: "Stray Kids",
-      albumImage: "",
+      title:
+        representativeConnection
+          ?.otherTrack?.title ||
+        "알 수 없는 곡",
+
+      artist:
+        representativeConnection
+          ?.otherTrack?.artist ||
+        "알 수 없는 아티스트",
+
+      spotifyTrackId:
+        representativeConnection
+          ?.otherTrack
+          ?.spotifyTrackId,
+
+      albumImage:
+        representativeConnection
+          ?.otherTrack?.albumImage || "",
+
+      spotifyUrl:
+        representativeConnection?.otherTrack?.spotifyUrl || "",
     },
 
-    similarity: 73,
+    similarity:
+      match.similarity ?? 0,
 
-    // TODO: 나중에 AI 분석 API 결과로 변경
-    musicDNA: [
-      "HIGH ENERGY",
-      "CONFIDENT",
-      "HIP-HOP",
-    ],
+    musicDNA:
+      match.ai?.musicDNA ?? [],
 
     matchReason:
-      "두 곡 모두 강한 에너지와 자신감 있는 분위기를 가지고 있어요.",
+      match.ai?.matchReason ||
+      "음악적 접점을 발견했습니다.",
   };
+
+  /* ========================================
+     지나가기
+
+     다시 Search로 이동해서
+     새로운 매칭 검색
+  ======================================== */
 
   const handleSkip = () => {
-    navigate("/search");
+    navigate("/search", {
+      replace: true,
+    });
   };
 
-  const handleInvite = () => {
-    console.log("친구 초대장 보내기");
-    console.log("matchId:", matchData.matchId);
-    console.log("matchedUserId:", matchData.matchedUserId);
+  /* ========================================
+     친구 초대장
 
-    // TODO:
-    // const response = await sendMatchInvite(matchData.matchId);
-    // navigate(`/chat/${response.chatRoomId}`);
-  };
+     다음 단계에서 실제 Invitation API 연결
+  ======================================== */
+const handleInvite = async () => {
+  try {
+    const response = await api.post(
+      "/invitations",
+      {
+        receiverId:
+          matchData.matchedUserId,
+
+        spotifyTrackId:
+          matchData.mySong.spotifyTrackId,
+
+        trackTitle:
+          matchData.mySong.title,
+
+        trackArtist:
+          matchData.mySong.artist,
+
+        albumImage:
+          matchData.mySong.albumImage || null,
+
+        spotifyUrl:
+          matchData.mySong.spotifyUrl || null,
+      }
+    );
+
+    console.log(
+      "초대장 전송 결과:",
+      response.data
+    );
+
+    // ========================================
+    // 상대방도 이미 나에게 초대장을 보낸 경우
+    // → 자동 수락되어 바로 친구가 됨
+    // ========================================
+
+    if (response.data.mutualMatch) {
+      console.log(
+        "서로 초대장을 보내 친구가 되었습니다."
+      );
+
+      navigate(
+        `/chat/${response.data.chatRoomId}`
+      );
+
+      return;
+    }
+
+    // ========================================
+    // 일반 초대장 전송
+    // ========================================
+
+    console.log(
+      "친구 초대장을 보냈습니다."
+    );
+
+    navigate("/chat");
+  } catch (error) {
+    console.error(
+      "친구 초대장 전송 실패:",
+      error.response?.data || error
+    );
+
+    alert(
+      error.response?.data?.message ||
+        "친구 초대장을 보내지 못했습니다."
+    );
+  }
+};
 
   return (
     <MatchSuccessContainer>
       <MatchSuccessContent>
         <Header />
 
-        {/* MATCH SUCCESS */}
+        {/* ========================================
+            MATCH SUCCESS
+        ======================================== */}
+
         <SuccessSection>
           <SuccessTitle>
             Match
@@ -119,14 +297,26 @@ const MatchSuccess = () => {
           </SuccessDescription>
         </SuccessSection>
 
-        {/* SONG MATCH */}
+        {/* ========================================
+            REPRESENTATIVE SONG CONNECTION
+        ======================================== */}
+
         <SongsSection>
+          {/* 내 곡 */}
+
           <SongCard>
             <AlbumCover>
-              {matchData.mySong.albumImage && (
+              {matchData.mySong
+                .albumImage && (
                 <img
-                  src={matchData.mySong.albumImage}
-                  alt={matchData.mySong.title}
+                  src={
+                    matchData.mySong
+                      .albumImage
+                  }
+                  alt={
+                    matchData.mySong
+                      .title
+                  }
                 />
               )}
             </AlbumCover>
@@ -145,27 +335,46 @@ const MatchSuccess = () => {
             alt=""
           />
 
+          {/* 상대방 곡 */}
+
           <SongCard $matched>
             <AlbumCover>
-              {matchData.matchedSong.albumImage && (
+              {matchData.matchedSong
+                .albumImage && (
                 <img
-                  src={matchData.matchedSong.albumImage}
-                  alt={matchData.matchedSong.title}
+                  src={
+                    matchData
+                      .matchedSong
+                      .albumImage
+                  }
+                  alt={
+                    matchData
+                      .matchedSong.title
+                  }
                 />
               )}
             </AlbumCover>
 
             <SongTitle>
-              {matchData.matchedSong.title}
+              {
+                matchData.matchedSong
+                  .title
+              }
             </SongTitle>
 
             <SongArtist>
-              {matchData.matchedSong.artist}
+              {
+                matchData.matchedSong
+                  .artist
+              }
             </SongArtist>
           </SongCard>
         </SongsSection>
 
-        {/* MUSIC MATCH */}
+        {/* ========================================
+            MUSIC MATCH
+        ======================================== */}
+
         <MatchCard>
           <MatchLabel>
             Music Match
@@ -177,12 +386,17 @@ const MatchSuccess = () => {
 
           <MatchProgress>
             <MatchProgressFill
-              $percent={matchData.similarity}
+              $percent={
+                matchData.similarity
+              }
             />
           </MatchProgress>
         </MatchCard>
 
-        {/* AI MUSIC DNA */}
+        {/* ========================================
+            AI ANALYSIS
+        ======================================== */}
+
         <MusicDNASection>
           <MusicDNAHeader>
             <MusicDNATitle>
@@ -195,11 +409,15 @@ const MatchSuccess = () => {
           </MusicDNAHeader>
 
           <MusicDNATags>
-            {matchData.musicDNA.map((dna) => (
-              <MusicDNATag key={dna}>
-                {dna}
-              </MusicDNATag>
-            ))}
+            {matchData.musicDNA.map(
+              (dna) => (
+                <MusicDNATag
+                  key={dna}
+                >
+                  {dna}
+                </MusicDNATag>
+              )
+            )}
           </MusicDNATags>
 
           <MatchReasonBox>
@@ -209,7 +427,10 @@ const MatchSuccess = () => {
           </MatchReasonBox>
         </MusicDNASection>
 
-        {/* BUTTON */}
+        {/* ========================================
+            BUTTON
+        ======================================== */}
+
         <BottomButtonArea>
           <SkipButton
             type="button"
