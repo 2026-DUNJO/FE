@@ -138,7 +138,7 @@ const Login = () => {
           <BottomButtonArea>
             <BackButton type="button"
             onClick={handleBack}>
-            이전으로
+            뒤로
             </BackButton>
             <NextButton
               type="button"
