@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import api from "../api/axios";
 
 import listenerIcon from "../assets/home/listener.svg";
 import locationIcon from "../assets/home/location.svg";
@@ -13,7 +15,6 @@ import {
   SearchContent,
 
   SearchTop,
-  BackButton,
   SearchTitle,
 
   SearchInfo,
@@ -43,7 +44,7 @@ import {
    RADAR POINT POSITIONS
 
    실제 위치 정보가 아니라
-   주변 리스너 수를 시각적으로 표현하기 위한 위치
+   주변 리스너 수를 시각적으로 표현
 ======================================== */
 
 const radarPoints = [
@@ -62,7 +63,6 @@ const radarPoints = [
   { cx: 161, cy: 150, r: 2 },
   { cx: 63.5, cy: 161.5, r: 1.5 },
 
-  /* 추가 리스너 */
   { cx: 103, cy: 51, r: 2 },
   { cx: 215, cy: 105, r: 2.5 },
   { cx: 42, cy: 116, r: 2 },
@@ -77,33 +77,273 @@ const Search = () => {
   const navigate = useNavigate();
 
   const [isPaused, setIsPaused] = useState(false);
+  const [listenerCount, setListenerCount] = useState(0);
 
   /* ========================================
-     TODO
-     나중에 백엔드 데이터로 변경
+     POLLING 관리
   ======================================== */
+
+  const intervalRef = useRef(null);
+
+  // 이전 매칭 요청이 끝나기 전에
+  // 새로운 요청이 중복으로 들어가는 것 방지
+  const isSearchingRef = useRef(false);
 
   const matchingData = {
     radius: 1,
-    listenerCount: 12,
+    listenerCount,
     similarity: 70,
   };
-
-  /*
-    화면에 표시할 점 개수
-
-    listenerCount가 12 → 12개
-    listenerCount가 5  → 5개
-    listenerCount가 30 → 최대 20개
-  */
 
   const visiblePointCount = Math.min(
     matchingData.listenerCount,
     radarPoints.length
   );
 
-  const handleToggleSearch = () => {
-    setIsPaused((prev) => !prev);
+  /* ========================================
+     주변 리스너 조회
+  ======================================== */
+
+  const fetchNearbyUsers = async () => {
+    try {
+      const response = await api.get(
+        "/users/me/location/nearby"
+      );
+
+      console.log(
+        "주변 리스너:",
+        response.data
+      );
+
+      setListenerCount(
+        response.data.length
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error(
+        "주변 리스너 조회 실패:",
+        error.response?.data || error
+      );
+
+      return [];
+    }
+  };
+
+  /* ========================================
+     실제 매칭 검색
+  ======================================== */
+
+  const searchMatch = async () => {
+    // 이미 매칭 요청 중이면
+    // 새로운 요청을 보내지 않음
+    if (isSearchingRef.current) {
+      console.log(
+        "이전 매칭 검색이 아직 진행 중입니다."
+      );
+
+      return;
+    }
+
+    isSearchingRef.current = true;
+
+    try {
+      console.log(
+        "DUNJO 매칭 검색 시작"
+      );
+
+      const response = await api.post(
+        "/matching/search"
+      );
+
+      console.log(
+        "매칭 검색 결과:",
+        response.data
+      );
+
+      /* ====================================
+         매칭 성공
+      ==================================== */
+
+      if (
+        response.data.matched &&
+        response.data.matches?.length > 0
+      ) {
+        // similarity가 가장 높은 사용자
+        const bestMatch =
+          response.data.matches[0];
+
+        console.log(
+          "매칭 성공:",
+          bestMatch
+        );
+
+        /* ================================
+           Polling 종료
+        ================================ */
+
+        if (intervalRef.current) {
+          clearInterval(
+            intervalRef.current
+          );
+
+          intervalRef.current = null;
+        }
+
+        /* ================================
+           매칭 성공 진동
+        ================================ */
+
+        if ("vibrate" in navigator) {
+          navigator.vibrate([
+            120,
+            70,
+            180,
+          ]);
+        }
+
+        /* ================================
+           MatchSuccess 이동
+        ================================ */
+
+        navigate(
+          "/match-success",
+          {
+            state: {
+              match: bestMatch,
+            },
+          }
+        );
+
+        return;
+      }
+
+      console.log(
+        "70% 이상 매칭 없음"
+      );
+    } catch (error) {
+      console.error(
+        "매칭 검색 실패:",
+        error.response?.data || error
+      );
+    } finally {
+      isSearchingRef.current = false;
+    }
+  };
+
+  /* ========================================
+     한 번의 탐색 작업
+
+     1. 주변 사용자 갱신
+     2. 음악 매칭 검색
+  ======================================== */
+
+  const runSearch = async () => {
+    await fetchNearbyUsers();
+    await searchMatch();
+  };
+
+  /* ========================================
+     30초 Polling 시작
+  ======================================== */
+
+  const startPolling = () => {
+    // 혹시 기존 interval이 있으면 제거
+    if (intervalRef.current) {
+      clearInterval(
+        intervalRef.current
+      );
+    }
+
+    intervalRef.current =
+      setInterval(() => {
+        console.log(
+          "30초 Polling - 매칭 재탐색"
+        );
+
+        runSearch();
+      }, 30000);
+  };
+
+  /* ========================================
+     Search 페이지 최초 진입
+
+     즉시 검색 1회
+     +
+     이후 30초마다 검색
+  ======================================== */
+
+  useEffect(() => {
+    const initializeSearch = async () => {
+      // 페이지 진입 즉시 검색
+      await runSearch();
+
+      // 이후 30초마다 검색
+      startPolling();
+    };
+
+    initializeSearch();
+
+    /* ====================================
+       Search 페이지를 벗어나면
+       Polling 완전히 종료
+    ==================================== */
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(
+          intervalRef.current
+        );
+
+        intervalRef.current = null;
+      }
+    };
+  }, []);
+
+  /* ========================================
+     탐색 일시정지 / 다시 탐색
+  ======================================== */
+
+  const handleToggleSearch = async () => {
+    /* ====================================
+       현재 탐색 중
+       → 일시정지
+    ==================================== */
+
+    if (!isPaused) {
+      setIsPaused(true);
+
+      if (intervalRef.current) {
+        clearInterval(
+          intervalRef.current
+        );
+
+        intervalRef.current = null;
+      }
+
+      console.log(
+        "매칭 탐색 일시정지"
+      );
+
+      return;
+    }
+
+    /* ====================================
+       현재 일시정지 상태
+       → 다시 탐색
+    ==================================== */
+
+    setIsPaused(false);
+
+    console.log(
+      "매칭 탐색 다시 시작"
+    );
+
+    // 다시 시작하자마자 즉시 검색
+    await runSearch();
+
+    // 이후 다시 30초 Polling
+    startPolling();
   };
 
   return (
@@ -120,9 +360,10 @@ const Search = () => {
         ======================================== */}
 
         <SearchTop>
-
           <SearchTitle>
-            {isPaused ? "Paused" : "Searching..."}
+            {isPaused
+              ? "Paused"
+              : "Searching..."}
           </SearchTitle>
         </SearchTop>
 
@@ -132,8 +373,10 @@ const Search = () => {
 
         <SearchInfo>
           <RadiusText>
-            <strong>{matchingData.radius}km</strong>
-            {" "}안에서
+            <strong>
+              {matchingData.radius}km
+            </strong>{" "}
+            안에서
           </RadiusText>
 
           <MatchingDescription>
@@ -187,29 +430,29 @@ const Search = () => {
               $delay="0s"
             />
 
-            {/* ========================================
-                LISTENER POINTS
-
-                listenerCount에 따라 자동으로
-                표시되는 점 개수가 변경됨
-            ======================================== */}
+            {/* LISTENER POINTS */}
 
             {radarPoints
-              .slice(0, visiblePointCount)
-              .map((point, index) => (
-                <RadarPoint
-                  key={index}
-                  cx={point.cx}
-                  cy={point.cy}
-                  r={point.r}
-                  $paused={isPaused}
-                  $delay={`${(index % 6) * 0.3}s`}
-                />
-              ))}
+              .slice(
+                0,
+                visiblePointCount
+              )
+              .map(
+                (point, index) => (
+                  <RadarPoint
+                    key={index}
+                    cx={point.cx}
+                    cy={point.cy}
+                    r={point.r}
+                    $paused={isPaused}
+                    $delay={`${
+                      (index % 6) * 0.3
+                    }s`}
+                  />
+                )
+              )}
 
-            {/* ========================================
-                CENTER SIGNAL
-            ======================================== */}
+            {/* CENTER SIGNAL */}
 
             <RadarCenterWave
               cx="120"
@@ -245,7 +488,10 @@ const Search = () => {
             </StatLabel>
 
             <StatValue>
-              {matchingData.listenerCount}명
+              {
+                matchingData.listenerCount
+              }
+              명
             </StatValue>
           </StatItem>
 
@@ -283,7 +529,10 @@ const Search = () => {
             </StatLabel>
 
             <StatValue>
-              {matchingData.similarity}% 이상
+              {
+                matchingData.similarity
+              }
+              % 이상
             </StatValue>
           </StatItem>
         </MatchingStats>
@@ -295,11 +544,16 @@ const Search = () => {
         <SearchToggleButton
           type="button"
           $paused={isPaused}
-          onClick={handleToggleSearch}
+          onClick={
+            handleToggleSearch
+          }
         >
           {isPaused ? (
             <>
-              <PlayIcon>▶</PlayIcon>
+              <PlayIcon>
+                ▶
+              </PlayIcon>
+
               다시 탐색하기
             </>
           ) : (
@@ -314,8 +568,6 @@ const Search = () => {
           )}
         </SearchToggleButton>
       </SearchContent>
-
-      {/* NAVBAR */}
 
       <NavBar />
     </SearchContainer>
