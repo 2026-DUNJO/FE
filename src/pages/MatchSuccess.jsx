@@ -3,6 +3,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import api from "../api/axios";
+
 import Header from "../components/Header";
 
 import beforeRadius from "../assets/home/before_radius.svg";
@@ -195,37 +197,74 @@ const MatchSuccess = () => {
 
      다음 단계에서 실제 Invitation API 연결
   ======================================== */
-
-  const handleInvite = () => {
-    console.log(
-      "친구 초대장 보내기"
-    );
-
-    console.log(
-      "matchedUserId:",
-      matchData.matchedUserId
-    );
-
-    console.log(
-      "추천곡:",
-      matchData.mySong
-    );
-
-    /*
-      다음 단계:
-
-      POST /api/invitations
-
+const handleInvite = async () => {
+  try {
+    const response = await api.post(
+      "/invitations",
       {
-        receiverId,
-        spotifyTrackId,
-        trackTitle,
-        trackArtist,
-        albumImage,
-        spotifyUrl
+        receiverId:
+          matchData.matchedUserId,
+
+        spotifyTrackId:
+          matchData.mySong.spotifyTrackId,
+
+        trackTitle:
+          matchData.mySong.title,
+
+        trackArtist:
+          matchData.mySong.artist,
+
+        albumImage:
+          matchData.mySong.albumImage || null,
+
+        spotifyUrl:
+          matchData.mySong.spotifyUrl || null,
       }
-    */
-  };
+    );
+
+    console.log(
+      "초대장 전송 결과:",
+      response.data
+    );
+
+    // ========================================
+    // 상대방도 이미 나에게 초대장을 보낸 경우
+    // → 자동 수락되어 바로 친구가 됨
+    // ========================================
+
+    if (response.data.mutualMatch) {
+      console.log(
+        "서로 초대장을 보내 친구가 되었습니다."
+      );
+
+      navigate(
+        `/chat/${response.data.chatRoomId}`
+      );
+
+      return;
+    }
+
+    // ========================================
+    // 일반 초대장 전송
+    // ========================================
+
+    console.log(
+      "친구 초대장을 보냈습니다."
+    );
+
+    navigate("/chat");
+  } catch (error) {
+    console.error(
+      "친구 초대장 전송 실패:",
+      error.response?.data || error
+    );
+
+    alert(
+      error.response?.data?.message ||
+        "친구 초대장을 보내지 못했습니다."
+    );
+  }
+};
 
   return (
     <MatchSuccessContainer>
