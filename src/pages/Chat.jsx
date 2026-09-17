@@ -126,6 +126,29 @@ const Chat = () => {
   }, []);
 
   /* ==============================
+   친구 / 요청 Polling
+   5초마다 새 알림 확인
+============================== */
+
+useEffect(() => {
+  const intervalId = setInterval(() => {
+    Promise.all([
+      fetchFriends(),
+      fetchRequests(),
+    ]).catch((error) => {
+      console.error(
+        "채팅 목록 자동 갱신 실패:",
+        error.response?.data || error
+      );
+    });
+  }, 5000);
+
+  return () => {
+    clearInterval(intervalId);
+  };
+}, []);
+
+  /* ==============================
      현재 탭 목록
   ============================== */
 

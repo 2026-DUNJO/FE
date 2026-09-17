@@ -316,33 +316,56 @@ const ChatRoom = () => {
     };
 
   /* ==============================
-     최초 로딩
-  ============================== */
+   최초 로딩
+============================== */
 
-  useEffect(() => {
-    const initialize =
-      async () => {
-        try {
-          setIsLoading(true);
+useEffect(() => {
+  const initialize = async () => {
+    try {
+      setIsLoading(true);
 
-          await Promise.all([
-            fetchMe(),
-            fetchFriendship(),
-            fetchMessages(),
-          ]);
-        } catch (error) {
-          console.error(
-            "채팅방 조회 실패:",
-            error.response?.data ||
-              error
-          );
-        } finally {
-          setIsLoading(false);
-        }
-      };
+      await Promise.all([
+        fetchMe(),
+        fetchFriendship(),
+        fetchMessages(),
+      ]);
+    } catch (error) {
+      console.error(
+        "채팅방 조회 실패:",
+        error.response?.data || error
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    initialize();
-  }, [chatRoomId]);
+  initialize();
+}, [chatRoomId]);
+
+
+/* ==============================
+   채팅 메시지 Polling
+   5초마다 새 곡 확인
+============================== */
+
+useEffect(() => {
+  if (!chatRoomId) {
+    return;
+  }
+
+  const intervalId = setInterval(() => {
+    fetchMessages().catch((error) => {
+      console.error(
+        "채팅 메시지 자동 갱신 실패:",
+        error.response?.data || error
+      );
+    });
+  }, 5000);
+
+  return () => {
+    clearInterval(intervalId);
+  };
+}, [chatRoomId]);
 
   /* ==============================
      곡 선택창 열기

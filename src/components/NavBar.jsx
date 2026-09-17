@@ -112,9 +112,24 @@ const NavBar = () => {
       }
     };
 
-  useEffect(() => {
+/* ==============================
+   NavBar 알림 Polling
+   5초마다 새 알림 확인
+============================== */
+
+useEffect(() => {
+  // 페이지 들어오자마자 바로 조회
+  fetchNotificationCount();
+
+  // 이후 5초마다 조회
+  const intervalId = setInterval(() => {
     fetchNotificationCount();
-  }, [location.pathname]);
+  }, 5000);
+
+  return () => {
+    clearInterval(intervalId);
+  };
+}, [location.pathname]);
 
   const navItems = [
     {
