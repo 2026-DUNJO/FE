@@ -367,24 +367,19 @@ export const MatchingHeader = styled.div`
 export const MatchingStatus = styled.div`
   display: flex;
   align-items: center;
-
   gap: 8px;
 
-  color: var(--color-main);
-
-  font-size: 12px;
-  font-weight: 700;
+  color: ${({ $paused }) =>
+    $paused ? "var(--color-gray)" : "#E56458"};
 `;
 
 export const StatusDot = styled.span`
   width: 7px;
   height: 7px;
-
-  flex-shrink: 0;
-
   border-radius: 50%;
 
-  background: var(--color-main);
+  background-color: ${({ $paused }) =>
+    $paused ? "var(--color-gray)" : "#E56458"};
 `;
 
 export const MatchingArrow = styled.span`
@@ -402,18 +397,20 @@ export const MatchingArrow = styled.span`
 ======================================== */
 
 export const AfterRadius = styled.img`
-  width: 240px;
-  height: 240px;
+  position: static;
 
-  filter: ${({ $paused }) =>
-    $paused ? "grayscale(1)" : "none"};
+  display: block;
 
-  opacity: ${({ $paused }) =>
-    $paused ? 0.45 : 1};
+  width: 180px;
+  height: 180px;
 
-  transition:
-    filter 0.2s ease,
-    opacity 0.2s ease;
+  margin: 20px auto;
+
+  flex-shrink: 0;
+
+  object-fit: contain;
+
+  pointer-events: none;
 `;
 
 /* ========================================

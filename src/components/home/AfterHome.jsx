@@ -5,6 +5,7 @@ import api from "../../api/axios";
 import listenerIcon from "../../assets/home/listener.svg";
 import similarityIcon from "../../assets/home/similarity.svg";
 import afterRadius from "../../assets/home/after_radius.svg";
+import beforeRadiusDie from "../../assets/home/before_radius_die.svg";
 
 import NavBar from "../NavBar";
 import Header from "../Header";
@@ -245,9 +246,8 @@ const AfterHome = () => {
 
           {/* 레이더 */}
           <AfterRadius
-            src={afterRadius}
+            src={isMatchingPaused ? beforeRadiusDie : afterRadius}
             alt=""
-            $paused={isMatchingPaused}
           />
 
           {/* 반경 */}
