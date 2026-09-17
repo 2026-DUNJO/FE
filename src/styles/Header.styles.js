@@ -7,6 +7,7 @@ export const HeaderContainer = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  position: sticky;
 `;
 
 export const HeaderLogo = styled.img`
