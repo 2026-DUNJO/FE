@@ -154,18 +154,22 @@ export const BottomButtonArea = styled.div`
 `;
 
 export const BackButton = styled.button`
-  width: 76px;
+  width: 92px;
+  min-width: 92px;
   height: 48px;
+
+  padding: 0;
 
   border: 1px solid var(--color-black);
   border-radius: 3px;
-
   background: var(--color-white);
-  color: var(--color-black);
 
+  color: var(--color-black);
   font-family: inherit;
   font-size: 16px;
   font-weight: 600;
+
+  white-space: nowrap;
 
   cursor: pointer;
 
@@ -175,6 +179,7 @@ export const BackButton = styled.button`
 `;
 
 export const NextButton = styled.button`
+  min-width: 0;
   width: ${({ $full }) =>
     $full ? "100%" : "auto"};
 
