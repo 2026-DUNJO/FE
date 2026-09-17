@@ -10,6 +10,7 @@ import MatchSuccess from "./pages/MatchSuccess";
 import MyPage from "./pages/MyPage";
 import Chat from "./pages/Chat";
 import ChatRoom from "./pages/ChatRoom";
+import Request from "./pages/Request";
 
 function App() {
   return (
@@ -54,6 +55,11 @@ function App() {
         element={<Chat />}
       />
 
+      <Route
+        path="/request/:invitationId"
+        element={<Request />}
+      />
+      
       <Route
         path="/chat/:chatRoomId"
         element={<ChatRoom />}

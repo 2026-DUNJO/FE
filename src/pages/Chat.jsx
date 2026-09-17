@@ -1,12 +1,15 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 import { useNavigate } from "react-router-dom";
+
+import api from "../api/axios";
 
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
 
 import dunjoSymbol from "../assets/dunjo-symbol.svg";
-
-import { chatData } from "../data/chatData";
 
 import {
   ChatContainer,
@@ -31,19 +34,100 @@ import {
 const Chat = () => {
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("friends");
+  const [activeTab, setActiveTab] =
+    useState("friends");
+
+  const [friends, setFriends] =
+    useState([]);
+
+  const [requests, setRequests] =
+    useState([]);
+
+  const [isLoading, setIsLoading] =
+    useState(true);
 
   /* ==============================
-     친구 / 요청 분리
+     친구 목록 조회
   ============================== */
 
-  const friends = chatData.filter(
-    (chat) => chat.type === "friend"
-  );
+  const fetchFriends = async () => {
+    try {
+      const response = await api.get(
+        "/friendships"
+      );
 
-  const requests = chatData.filter(
-    (chat) => chat.type === "request"
-  );
+      console.log(
+        "친구 목록:",
+        response.data
+      );
+
+      setFriends(
+        Array.isArray(response.data)
+          ? response.data
+          : []
+      );
+    } catch (error) {
+      console.error(
+        "친구 목록 조회 실패:",
+        error.response?.data || error
+      );
+
+      setFriends([]);
+    }
+  };
+
+  /* ==============================
+     받은 요청 조회
+  ============================== */
+
+  const fetchRequests = async () => {
+    try {
+      const response = await api.get(
+        "/invitations/received"
+      );
+
+      console.log(
+        "받은 친구 요청:",
+        response.data
+      );
+
+      setRequests(
+        Array.isArray(response.data)
+          ? response.data
+          : []
+      );
+    } catch (error) {
+      console.error(
+        "친구 요청 조회 실패:",
+        error.response?.data || error
+      );
+
+      setRequests([]);
+    }
+  };
+
+  /* ==============================
+     최초 조회
+  ============================== */
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+
+      await Promise.all([
+        fetchFriends(),
+        fetchRequests(),
+      ]);
+
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  /* ==============================
+     현재 탭 목록
+  ============================== */
 
   const currentList =
     activeTab === "friends"
@@ -51,11 +135,69 @@ const Chat = () => {
       : requests;
 
   /* ==============================
-     채팅방 이동
+     친구 클릭
   ============================== */
 
-  const handleChatClick = (chatRoomId) => {
-    navigate(`/chat/${chatRoomId}`);
+  const handleFriendClick = (
+    friendship
+  ) => {
+    if (!friendship.chatRoomId) {
+      console.error(
+        "chatRoomId가 없습니다:",
+        friendship
+      );
+      return;
+    }
+
+    navigate(
+      `/chat/${friendship.chatRoomId}`
+    );
+  };
+
+  /* ==============================
+     요청 클릭
+  ============================== */
+
+  const handleRequestClick = (
+    invitationId
+  ) => {
+    navigate(
+      `/request/${invitationId}`
+    );
+  };
+
+  /* ==============================
+     친구 정보 안전하게 가져오기
+  ============================== */
+
+  const getFriendNickname = (
+    friendship
+  ) => {
+    return (
+      friendship.friend?.nickname ||
+      friendship.nickname ||
+      "친구"
+    );
+  };
+
+  const getFriendLastSong = (
+    friendship
+  ) => {
+    if (friendship.lastMessage) {
+      const title =
+        friendship.lastMessage
+          .trackTitle;
+
+      const artist =
+        friendship.lastMessage
+          .trackArtist;
+
+      if (title && artist) {
+        return `${artist} - ${title}`;
+      }
+    }
+
+    return "아직 주고받은 곡이 없어요.";
   };
 
   return (
@@ -70,16 +212,24 @@ const Chat = () => {
         <ChatTabs>
           <ChatTab
             type="button"
-            $active={activeTab === "friends"}
-            onClick={() => setActiveTab("friends")}
+            $active={
+              activeTab === "friends"
+            }
+            onClick={() =>
+              setActiveTab("friends")
+            }
           >
             친구
           </ChatTab>
 
           <ChatTab
             type="button"
-            $active={activeTab === "requests"}
-            onClick={() => setActiveTab("requests")}
+            $active={
+              activeTab === "requests"
+            }
+            onClick={() =>
+              setActiveTab("requests")
+            }
           >
             요청
 
@@ -90,58 +240,125 @@ const Chat = () => {
             )}
           </ChatTab>
 
-          <TabIndicator $activeTab={activeTab} />
+          <TabIndicator
+            $activeTab={activeTab}
+          />
         </ChatTabs>
 
         {/* ==============================
-            CHAT LIST
+            LOADING
         ============================== */}
 
-        {currentList.length > 0 ? (
+        {isLoading ? (
+          <EmptyMessage>
+            불러오는 중...
+          </EmptyMessage>
+        ) : currentList.length > 0 ? (
           <ChatList>
-            {currentList.map((chat) => (
-              <ChatCard
-                key={chat.chatRoomId}
-                type="button"
-                $request={chat.type === "request"}
-                onClick={() =>
-                  handleChatClick(chat.chatRoomId)
-                }
-              >
-                {/* PROFILE */}
 
-                <ProfileImage>
-                  <ProfileSymbol
-                    src={dunjoSymbol}
-                    alt=""
-                  />
-                </ProfileImage>
+            {/* ==========================
+                FRIEND
+            ========================== */}
 
-                {/* INFO */}
+            {activeTab === "friends" &&
+              friends.map(
+                (friendship) => (
+                  <ChatCard
+                    key={
+                      friendship.friendshipId ??
+                      friendship.id
+                    }
+                    type="button"
+                    onClick={() =>
+                      handleFriendClick(
+                        friendship
+                      )
+                    }
+                  >
+                    <ProfileImage>
+                      <ProfileSymbol
+                        src={dunjoSymbol}
+                        alt=""
+                      />
+                    </ProfileImage>
 
-                <ChatInfo>
-                  <ChatNameRow>
-                    <ChatNickname>
-                      {chat.nickname}
-                    </ChatNickname>
+                    <ChatInfo>
+                      <ChatNameRow>
+                        <ChatNickname>
+                          {getFriendNickname(
+                            friendship
+                          )}
+                        </ChatNickname>
+                      </ChatNameRow>
 
-                    {chat.unread && (
-                      <UnreadDot />
-                    )}
-                  </ChatNameRow>
+                      <LastSong>
+                        마지막 곡　
+                        {getFriendLastSong(
+                          friendship
+                        )}
+                      </LastSong>
+                    </ChatInfo>
 
-                  <LastSong>
-                    {chat.type === "request"
-                      ? `던진 곡　${chat.lastSong}`
-                      : `마지막 곡　${chat.lastSong}`}
-                  </LastSong>
-                </ChatInfo>
+                    <ChatArrow>
+                      ›
+                    </ChatArrow>
+                  </ChatCard>
+                )
+              )}
 
-                <ChatArrow>
-                  ›
-                </ChatArrow>
-              </ChatCard>
-            ))}
+            {/* ==========================
+                REQUEST
+            ========================== */}
+
+            {activeTab === "requests" &&
+              requests.map(
+                (invitation) => (
+                  <ChatCard
+                    key={invitation.id}
+                    type="button"
+                    $request
+                    onClick={() =>
+                      handleRequestClick(
+                        invitation.id
+                      )
+                    }
+                  >
+                    <ProfileImage>
+                      <ProfileSymbol
+                        src={dunjoSymbol}
+                        alt=""
+                      />
+                    </ProfileImage>
+
+                    <ChatInfo>
+                      <ChatNameRow>
+                        <ChatNickname>
+                          {invitation
+                            .sender
+                            ?.nickname ||
+                            "친구"}
+                        </ChatNickname>
+
+                        <UnreadDot />
+                      </ChatNameRow>
+
+                      <LastSong>
+                        {
+                          invitation.trackArtist
+                        }{" "}
+                        -{" "}
+                        {
+                          invitation.trackTitle
+                        }
+                      </LastSong>
+                    </ChatInfo>
+
+                    <ChatArrow>
+                      ›
+                    </ChatArrow>
+                  </ChatCard>
+                )
+              )}
           </ChatList>
         ) : (
           <EmptyMessage>
