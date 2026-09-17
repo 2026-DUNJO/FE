@@ -369,8 +369,11 @@ export const MatchingStatus = styled.div`
   align-items: center;
   gap: 8px;
 
+  font-size: 12px;
+  font-weight: 700;
+
   color: ${({ $paused }) =>
-    $paused ? "var(--color-gray)" : "#E56458"};
+    $paused ? "var(--color-gray)" : "var(--color-main)"};
 `;
 
 export const StatusDot = styled.span`
@@ -379,17 +382,7 @@ export const StatusDot = styled.span`
   border-radius: 50%;
 
   background-color: ${({ $paused }) =>
-    $paused ? "var(--color-gray)" : "#E56458"};
-`;
-
-export const MatchingArrow = styled.span`
-  color: var(--color-gray);
-
-  font-size: 28px;
-  font-weight: 400;
-  line-height: 1;
-
-  cursor: pointer;
+    $paused ? "var(--color-gray)" : "var(--color-main)"};
 `;
 
 /* ========================================
