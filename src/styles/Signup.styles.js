@@ -394,3 +394,11 @@ export const CompleteText = styled.h1`
 
   text-align: center;
 `;
+
+export const PasswordGuide = styled.p`
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: ${({ $error }) =>
+    $error ? "#E56458" : "var(--color-gray)"};
+`;

@@ -136,6 +136,10 @@ const Login = () => {
           </InputSection>
 
           <BottomButtonArea>
+            <BackButton type="button"
+            onClick={handleBack}>
+            이전으로
+            </BackButton>
             <NextButton
               type="button"
               $full
