@@ -65,13 +65,13 @@ const Signup = () => {
   };
 
   const handleBack = () => {
-  if (step === 1) {
-    navigate("/select");
-    return;
-  }
+    if (step === 1) {
+      navigate("/select");
+      return;
+    }
 
-  setStep((prev) => prev - 1);
-};
+    setStep((prev) => prev - 1);
+  };
 
   const allTermsChecked =
     terms.age &&
@@ -192,13 +192,15 @@ const Signup = () => {
           </InputSection>
 
           <BottomButtonArea>
-            <BackButton type="button"
-            onClick={handleBack}>
+            <BackButton
+              type="button"
+              onClick={handleBack}
+            >
               뒤로
             </BackButton>
+
             <NextButton
               type="button"
-              $full
               $active={isValid}
               disabled={!isValid}
               onClick={handleNext}
@@ -250,8 +252,9 @@ const Signup = () => {
             {formData.password.length > 0 &&
               formData.password.length < 8 && (
                 <PasswordGuide $error>
-      비밀번호는 8자 이상 입력해주세요.
-    </PasswordGuide>)}
+                  비밀번호는 8자 이상 입력해주세요.
+                </PasswordGuide>
+              )}
           </InputSection>
 
           <PreviousList>

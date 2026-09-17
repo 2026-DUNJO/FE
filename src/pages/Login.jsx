@@ -136,13 +136,15 @@ const Login = () => {
           </InputSection>
 
           <BottomButtonArea>
-            <BackButton type="button"
-            onClick={handleBack}>
-            뒤로
+            <BackButton
+              type="button"
+              onClick={handleBack}
+            >
+              뒤로
             </BackButton>
+
             <NextButton
               type="button"
-              $full
               $active={isValid}
               disabled={!isValid}
               onClick={handleNext}
@@ -222,7 +224,9 @@ const Login = () => {
               disabled={!isValid || isLoading}
               onClick={handleLogin}
             >
-              {isLoading ? "로그인 중..." : "로그인"}
+              {isLoading
+                ? "로그인 중..."
+                : "로그인"}
             </NextButton>
           </BottomButtonArea>
         </SignupContent>
