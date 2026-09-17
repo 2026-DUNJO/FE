@@ -154,10 +154,9 @@ export const BottomButtonArea = styled.div`
 `;
 
 export const BackButton = styled.button`
-  width: 92px;
-  min-width: 92px;
+  width: 76px;
+  min-width: 76px;
   height: 48px;
-
   padding: 0;
 
   border: 1px solid var(--color-black);
@@ -170,7 +169,6 @@ export const BackButton = styled.button`
   font-weight: 600;
 
   white-space: nowrap;
-
   cursor: pointer;
 
   &:active {
