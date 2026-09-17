@@ -1,4 +1,7 @@
-import Header from "../Header"
+import { useState } from "react";
+
+import Header from "../Header";
+import api from "../../api/axios";
 
 import tasteIcon from "../../assets/home/taste.svg";
 import nearbyIcon from "../../assets/home/nearby.svg";
@@ -24,21 +27,58 @@ import {
 } from "../../styles/Home.styles";
 
 const BeforeHome = () => {
-  const handleSpotifyConnect = () => {
-    // TODO: Spotify OAuth 연결
-    console.log("Spotify 연결");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSpotifyConnect = async () => {
+    if (isLoading) return;
+
+    try {
+      setIsLoading(true);
+
+      const response = await api.get(
+        "/spotify/login"
+      );
+
+      console.log(
+        "Spotify 로그인 URL",
+        response.data
+      );
+
+      // 백엔드가 만들어준 Spotify OAuth 페이지로 이동
+      window.location.href =
+        response.data.url;
+    } catch (error) {
+      console.error(
+        "Spotify 연결 실패",
+        error.response?.data || error
+      );
+
+      const message =
+        error.response?.data?.message ||
+        "Spotify 연결을 시작하지 못했습니다.";
+
+      alert(
+        Array.isArray(message)
+          ? message.join("\n")
+          : message
+      );
+
+      setIsLoading(false);
+    }
   };
 
   return (
     <BeforeContainer>
       <Header variant="taste" />
+
       <IntroSection>
         <IntroTitle>
           음악에
           <br />
           운명을{" "}
           <ThrowTextWrapper>
-          <strong>던져!</strong>
+            <strong>던져!</strong>
+
             <BeforeRadius
               src={beforeRadius}
               alt=""
@@ -115,13 +155,16 @@ const BeforeHome = () => {
       <SpotifyButton
         type="button"
         onClick={handleSpotifyConnect}
+        disabled={isLoading}
       >
         <SpotifyIcon
           src={spotifyIcon}
           alt=""
         />
 
-        Spotify로 시작하기
+        {isLoading
+          ? "Spotify 연결 중..."
+          : "Spotify로 시작하기"}
       </SpotifyButton>
     </BeforeContainer>
   );
