@@ -292,7 +292,6 @@ const Chat = () => {
                       </ChatNameRow>
 
                       <LastSong>
-                        마지막 곡　
                         {getFriendLastSong(
                           friendship
                         )}

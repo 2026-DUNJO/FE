@@ -422,86 +422,131 @@ export const Overlay = styled.div`
    SONG PICKER
 ======================================== */
 
-export const SongPickerSheet = styled.section`
-  position: absolute;
+export const SongPickerSheet = styled.div`
+  position: fixed;
 
-  left: 0;
-  right: 0;
+  left: 50%;
   bottom: 0;
+  transform: translateX(-50%);
 
-  z-index: 30;
+  width: 100%;
+  max-width: 390px;
 
-  padding: 12px 28px 28px;
+  height: 72vh;
+  max-height: 620px;
 
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 
-  border-radius: 24px 24px 0 0;
+  background: #ffffff;
 
-  background: var(--color-white);
+  border-radius: 22px 22px 0 0;
+
+  overflow: hidden;
+
+  z-index: 1001;
+`;
+
+export const SongOptionList = styled.div`
+  flex: 1;
+  min-height: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+
+  padding: 0 20px 10px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export const PickerHandle = styled.div`
   width: 42px;
   height: 4px;
 
-  margin: 0 auto 24px;
+  margin: 12px auto 0;
 
   border-radius: 999px;
 
-  background: var(--color-light-gray);
+  background: #b7b7b7;
+
+  flex-shrink: 0;
 `;
 
 export const PickerTitle = styled.h2`
-  margin: 0;
-
-  color: var(--color-black);
+  margin: 22px 20px 0;
 
   font-size: 20px;
   font-weight: 700;
+  line-height: 1.3;
+
+  color: #262626;
 `;
 
 export const PickerDescription = styled.p`
-  margin: 8px 0 20px;
-
-  color: var(--color-gray);
+  margin: 8px 20px 0;
 
   font-size: 13px;
   font-weight: 400;
   line-height: 1.5;
-`;
 
-export const SongOptionList = styled.div`
-  display: flex;
-  flex-direction: column;
-
-  gap: 8px;
+  color: #8a8a8a;
 `;
 
 export const SongOption = styled.button`
   width: 100%;
-
-  padding: 10px;
-
-  box-sizing: border-box;
+  min-height: 64px;
 
   display: flex;
   align-items: center;
 
   gap: 12px;
 
+  padding: 8px 12px;
+
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
 
   background: #f5f5f5;
-  color: var(--color-black);
 
-  font-family: inherit;
   text-align: left;
 
   cursor: pointer;
 
+  flex-shrink: 0;
+
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease;
+
   &:active {
-    transform: scale(0.99);
+    transform: scale(0.985);
+    background: #eeeeee;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  > span:last-child {
+    margin-left: auto;
+
+    color: #262626;
+
+    font-size: 20px;
+    font-weight: 400;
   }
 `;
 
@@ -511,26 +556,25 @@ export const PickerAlbum = styled.div`
 
   flex-shrink: 0;
 
-  border-radius: 7px;
-
-  background: var(--color-light-light-gray);
-
   overflow: hidden;
 
-  img {
-    display: block;
+  border-radius: 8px;
 
+  background: #e8e8e8;
+
+  img {
     width: 100%;
     height: 100%;
+
+    display: block;
 
     object-fit: cover;
   }
 `;
 
 export const PickerSongInfo = styled.div`
-  min-width: 0;
-
   flex: 1;
+  min-width: 0;
 
   display: flex;
   flex-direction: column;
@@ -538,44 +582,53 @@ export const PickerSongInfo = styled.div`
   gap: 4px;
 `;
 
-export const PickerSongTitle = styled.strong`
-  color: var(--color-black);
+export const PickerSongTitle = styled.div`
+  overflow: hidden;
+
+  color: #262626;
 
   font-size: 14px;
   font-weight: 600;
 
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 `;
 
-export const PickerSongArtist = styled.span`
-  color: var(--color-gray);
+export const PickerSongArtist = styled.div`
+  overflow: hidden;
+
+  color: #888888;
 
   font-size: 12px;
+  font-weight: 400;
 
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 `;
 
+
 export const CancelButton = styled.button`
-  width: 100%;
-  height: 44px;
+  flex-shrink: 0;
 
-  margin-top: 16px;
+  height: 46px;
 
-  border: 1px solid var(--color-light-gray);
-  border-radius: 4px;
+  margin: 12px 20px 16px;
 
-  background: var(--color-white);
-  color: var(--color-black);
+  border: 1px solid #d6d6d6;
+  border-radius: 10px;
 
-  font-family: inherit;
+  background: #ffffff;
+
+  color: #262626;
+
   font-size: 14px;
   font-weight: 600;
 
   cursor: pointer;
+
+  &:active {
+    background: #f5f5f5;
+  }
 `;
 
 /* ========================================
@@ -688,4 +741,80 @@ export const EndFriendCancelButton = styled.button`
   &:active {
     transform: scale(0.99);
   }
+`;
+
+
+export const SongSearchForm = styled.form`
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin: 28px 20px 0;
+`;
+
+export const SongSearchInput = styled.input`
+  flex: 1;
+  min-width: 0;
+
+  height: 44px;
+
+  padding: 0 14px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #dddddd;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #262626;
+
+  font-size: 14px;
+
+  outline: none;
+
+  &::placeholder {
+    color: #a5a5a5;
+  }
+
+  &:focus {
+    border-color: #262626;
+  }
+`;
+
+export const SongSearchButton = styled.button`
+  flex-shrink: 0;
+
+  height: 44px;
+
+  padding: 0 17px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #262626;
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+`;
+
+export const SongListTitle = styled.div`
+  margin: 17px 20px 9px;
+
+  color: #777777;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  flex-shrink: 0;
 `;

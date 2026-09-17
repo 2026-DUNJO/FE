@@ -49,6 +49,11 @@ import {
   PickerTitle,
   PickerDescription,
 
+  SongSearchForm,
+  SongSearchInput,
+  SongSearchButton,
+  SongListTitle,
+
   SongOptionList,
   SongOption,
   PickerAlbum,
@@ -83,6 +88,17 @@ const ChatRoom = () => {
     spotifySongs,
     setSpotifySongs,
   ] = useState([]);
+
+  const [
+    searchResults,
+    setSearchResults,
+  ] = useState([]);
+
+  const [searchQuery, setSearchQuery] =
+    useState("");
+
+  const [isSearching, setIsSearching] =
+    useState(false);
 
   const [
     friendship,
@@ -221,6 +237,85 @@ const ChatRoom = () => {
     };
 
   /* ==============================
+     Spotify 곡 검색
+  ============================== */
+
+  const handleSearch =
+    async (event) => {
+      event.preventDefault();
+
+      const query =
+        searchQuery.trim();
+
+      if (!query) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        setIsSearching(true);
+
+        const response =
+          await api.get(
+            "/spotify/search",
+            {
+              params: {
+                q: query,
+              },
+            }
+          );
+
+        console.log(
+          "Spotify 검색 결과:",
+          response.data
+        );
+
+        setSearchResults(
+          Array.isArray(response.data)
+            ? response.data
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "Spotify 곡 검색 실패:",
+          error.response?.data ||
+            error
+        );
+
+        setSearchResults([]);
+
+        alert(
+          error.response?.data
+            ?.message ||
+            "Spotify 곡 검색에 실패했습니다."
+        );
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+  /* ==============================
+     검색어 변경
+  ============================== */
+
+  const handleSearchChange =
+    (event) => {
+      const value =
+        event.target.value;
+
+      setSearchQuery(value);
+
+      /*
+        검색어를 전부 지우면
+        다시 최근 재생곡 목록 표시
+      */
+
+      if (!value.trim()) {
+        setSearchResults([]);
+      }
+    };
+
+  /* ==============================
      최초 로딩
   ============================== */
 
@@ -255,10 +350,24 @@ const ChatRoom = () => {
 
   const handleOpenPicker =
     async () => {
+      setSearchQuery("");
+      setSearchResults([]);
+
       setIsPickerOpen(true);
 
       await fetchSpotifySongs();
     };
+
+  /* ==============================
+     곡 선택창 닫기
+  ============================== */
+
+  const handleClosePicker = () => {
+    setIsPickerOpen(false);
+
+    setSearchQuery("");
+    setSearchResults([]);
+  };
 
   /* ==============================
      곡 던지기
@@ -301,7 +410,7 @@ const ChatRoom = () => {
           response.data
         );
 
-        setIsPickerOpen(false);
+        handleClosePicker();
 
         await fetchMessages();
       } catch (error) {
@@ -363,6 +472,7 @@ const ChatRoom = () => {
         alert(
           "친구 관계 정보를 찾을 수 없습니다."
         );
+
         return;
       }
 
@@ -422,6 +532,21 @@ const ChatRoom = () => {
     spotifyUrl:
       message.spotifyUrl,
   });
+
+  /* ==============================
+     곡 선택기에 표시할 목록
+
+     검색어 없음
+     → 최근 재생곡
+
+     검색 결과 있음
+     → 검색 결과
+  ============================== */
+
+  const displayedSongs =
+    searchQuery.trim()
+      ? searchResults
+      : spotifySongs;
 
   /* ==============================
      LOADING
@@ -558,7 +683,7 @@ const ChatRoom = () => {
       </ChatRoomContent>
 
       {/* ==============================
-          곡 던지기
+          곡 던지기 버튼
       ============================== */}
 
       <ThrowButtonArea>
@@ -569,6 +694,7 @@ const ChatRoom = () => {
           }
         >
           ♫
+
           <span>
             곡 던지기
           </span>
@@ -582,8 +708,8 @@ const ChatRoom = () => {
       {isPickerOpen && (
         <>
           <Overlay
-            onClick={() =>
-              setIsPickerOpen(false)
+            onClick={
+              handleClosePicker
             }
           />
 
@@ -595,15 +721,65 @@ const ChatRoom = () => {
             </PickerTitle>
 
             <PickerDescription>
-              최근 들은 Spotify 곡
-              중 상대에게 던질 곡을
+              상대에게 던질 곡을
               선택해주세요.
             </PickerDescription>
 
+            {/* ==========================
+                SPOTIFY SEARCH
+            ========================== */}
+
+            <SongSearchForm
+              onSubmit={
+                handleSearch
+              }
+            >
+              <SongSearchInput
+                type="text"
+                value={
+                  searchQuery
+                }
+                onChange={
+                  handleSearchChange
+                }
+                placeholder="곡 또는 아티스트 검색"
+              />
+
+              <SongSearchButton
+                type="submit"
+                disabled={
+                  isSearching
+                }
+              >
+                {isSearching
+                  ? "검색 중"
+                  : "검색"}
+              </SongSearchButton>
+            </SongSearchForm>
+
+            {/* ==========================
+                LIST TITLE
+            ========================== */}
+
+            <SongListTitle>
+              {searchQuery.trim()
+                ? "Spotify 검색 결과"
+                : "최근 들은 곡"}
+            </SongListTitle>
+
+            {/* ==========================
+                SCROLL LIST
+            ========================== */}
+
             <SongOptionList>
-              {spotifySongs.length >
-              0 ? (
-                spotifySongs.map(
+              {isSearching ? (
+                <SystemMessage>
+                  Spotify에서
+                  검색하고 있어요.
+                </SystemMessage>
+              ) : displayedSongs.length >
+                0 ? (
+                displayedSongs.map(
                   (song) => (
                     <SongOption
                       key={
@@ -650,16 +826,17 @@ const ChatRoom = () => {
                 )
               ) : (
                 <SystemMessage>
-                  최근 들은 곡이
-                  없어요.
+                  {searchQuery.trim()
+                    ? "검색 결과가 없어요."
+                    : "최근 들은 곡이 없어요."}
                 </SystemMessage>
               )}
             </SongOptionList>
 
             <CancelButton
               type="button"
-              onClick={() =>
-                setIsPickerOpen(false)
+              onClick={
+                handleClosePicker
               }
             >
               취소
