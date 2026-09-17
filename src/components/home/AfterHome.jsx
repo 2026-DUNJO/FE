@@ -38,6 +38,9 @@ import {
 } from "../../styles/Home.styles";
 
 const AfterHome = () => {
+  const [isMatchingPaused, setIsMatchingPaused] = useState(
+  () => localStorage.getItem("matchingPaused") === "true"
+);
   // ========================================
   // Spotify 현재 재생곡
   // ========================================
@@ -236,7 +239,7 @@ const AfterHome = () => {
           <MatchingHeader>
             <MatchingStatus>
               <StatusDot />
-              MATCHING ON
+              {isMatchingPaused ? "MATCHING OFF" : "MATCHING ON"}
             </MatchingStatus>
           </MatchingHeader>
 
