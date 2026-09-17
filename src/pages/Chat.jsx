@@ -289,6 +289,14 @@ const Chat = () => {
                             friendship
                           )}
                         </ChatNickname>
+
+                        {friendship.unreadCount > 0 && (
+                          <RequestBadge>
+                            {friendship.unrealCount > 99
+                              ? " 99+"
+                              : friendship.unreadCount}
+                          </RequestBadge>
+                        )}
                       </ChatNameRow>
 
                       <LastSong>
@@ -335,7 +343,7 @@ const Chat = () => {
                           {invitation
                             .sender
                             ?.nickname ||
-                            "친구"}
+                            "채팅방"}
                         </ChatNickname>
 
                         <UnreadDot />

@@ -71,3 +71,35 @@ export const NavLabel = styled.span`
 
   line-height: 1;
 `;
+
+export const NavNotificationBadge = styled.span`
+  position: absolute;
+
+  top: 4px;
+  left: 50%;
+
+  /* 숫자가 클수록 오른쪽으로 이동 */
+  transform: translateX(48px);
+
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+
+  background: #e56458;
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+
+  pointer-events: none;
+`;
