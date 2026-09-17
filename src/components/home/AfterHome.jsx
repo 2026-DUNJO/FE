@@ -247,6 +247,7 @@ const AfterHome = () => {
           <AfterRadius
             src={afterRadius}
             alt=""
+            $paused={isMatchingPaused}
           />
 
           {/* 반경 */}
@@ -258,7 +259,9 @@ const AfterHome = () => {
           </RadiusText>
 
           <MatchingDescription>
-            음악적으로 연결되는 사람을 찾고 있습니다.
+              {isMatchingPaused
+    ? "탐색이 일시정지되었습니다."
+    : "음악적으로 연결되는 사람을 찾고 있습니다."}
           </MatchingDescription>
 
           {/* =========================

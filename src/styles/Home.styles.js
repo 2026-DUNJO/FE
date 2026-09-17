@@ -402,20 +402,18 @@ export const MatchingArrow = styled.span`
 ======================================== */
 
 export const AfterRadius = styled.img`
-  position: static;
+  width: 240px;
+  height: 240px;
 
-  display: block;
+  filter: ${({ $paused }) =>
+    $paused ? "grayscale(1)" : "none"};
 
-  width: 180px;
-  height: 180px;
+  opacity: ${({ $paused }) =>
+    $paused ? 0.45 : 1};
 
-  margin: 20px auto;
-
-  flex-shrink: 0;
-
-  object-fit: contain;
-
-  pointer-events: none;
+  transition:
+    filter 0.2s ease,
+    opacity 0.2s ease;
 `;
 
 /* ========================================
