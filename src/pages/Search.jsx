@@ -76,7 +76,9 @@ const radarPoints = [
 const Search = () => {
   const navigate = useNavigate();
 
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(() => {
+  return localStorage.getItem("matchingPaused") === "true";
+});
   const [listenerCount, setListenerCount] = useState(0);
 
   /* ========================================
@@ -273,32 +275,32 @@ const Search = () => {
      이후 30초마다 검색
   ======================================== */
 
-  useEffect(() => {
-    const initializeSearch = async () => {
-      // 페이지 진입 즉시 검색
-      await runSearch();
+useEffect(() => {
+  const initializeSearch = async () => {
+    const paused =
+      localStorage.getItem("matchingPaused") === "true";
 
-      // 이후 30초마다 검색
-      startPolling();
-    };
+    // 일시정지 상태라면 주변 리스너 수만 조회
+    // 실제 매칭 검색은 하지 않음
+    if (paused) {
+      await fetchNearbyUsers();
+      return;
+    }
 
-    initializeSearch();
+    // 탐색 ON 상태
+    await runSearch();
+    startPolling();
+  };
 
-    /* ====================================
-       Search 페이지를 벗어나면
-       Polling 완전히 종료
-    ==================================== */
+  initializeSearch();
 
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(
-          intervalRef.current
-        );
-
-        intervalRef.current = null;
-      }
-    };
-  }, []);
+  return () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  };
+}, []);
 
   /* ========================================
      탐색 일시정지 / 다시 탐색
@@ -312,6 +314,7 @@ const Search = () => {
 
     if (!isPaused) {
       setIsPaused(true);
+      localStorage.setItem("matchingPaused", "true");
 
       if (intervalRef.current) {
         clearInterval(
@@ -334,6 +337,7 @@ const Search = () => {
     ==================================== */
 
     setIsPaused(false);
+    localStorage.setItem("matchingPaused", "false");
 
     console.log(
       "매칭 탐색 다시 시작"
